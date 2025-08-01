@@ -1,0 +1,208 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Nguyên Liệu</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .chat-container { width: 400px; background-color: #fff; box-shadow: 0 0 10px rgba(0,0,0,0.1); border-radius: 8px; display: flex; flex-direction: column; }
+        .chat-header { background-color: #5cb85c; color: white; padding: 15px; text-align: center; border-top-left-radius: 8px; border-top-right-radius: 8px; }
+        .chat-box { height: 400px; overflow-y: auto; padding: 15px; border-bottom: 1px solid #eee; }
+        .chat-message { margin-bottom: 15px; }
+        .chat-message.user .message-bubble { background-color: #dcf8c6; float: right; }
+        .chat-message.bot .message-bubble { background-color: #f1f0f0; float: left; }
+        .message-bubble {
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 70%;
+            clear: both;
+            word-wrap: break-word;
+            white-space: pre-wrap;  /* Giữ nguyên các dấu xuống dòng */
+            line-height: 1.5;  /* Tăng khoảng cách dòng */
+        }
+        /* Styling for the bullet points */
+        .message-bubble ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+
+        .message-bubble li {
+            margin-bottom: 5px;
+        }
+
+        /* Additional style to ensure text is clean */
+        .message-bubble {
+            font-family: Arial, sans-serif;
+        }
+        .message-bubble strong {
+            font-weight: 700;
+        }
+        .chat-input { display: flex; padding: 15px; border-top: 1px solid #eee;}
+        .chat-input input { flex-grow: 1; border: 1px solid #ddd; padding: 10px; border-radius: 20px; margin-right: 10px; }
+        .chat-input button { background-color: #5cb85c; color: white; border: none; padding: 10px 15px; border-radius: 20px; cursor: pointer; }
+        .chat-input button:hover { background-color: #4cae4c; }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #999;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 1px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <h3>NestChatbot</h3>
+        </div>
+        <div class="chat-box" id="chatBox">
+            <div class="chat-message bot">
+                <div class="message-bubble">Xin chào! Bạn muốn biết nguyên liệu cho món ăn nào?</div>
+            </div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Nhập tên món ăn...">
+            <button id="sendButton">Gửi</button>
+        </div>
+    </div>
+
+    <script>
+        const chatBox = document.getElementById('chatBox');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+
+        function addMessage(message, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('chat-message', sender);
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.classList.add('message-bubble');
+            
+            // Format message: replace markdown-style formatting with HTML and clean special characters
+            let formattedMessage = message
+                // Bold text
+                .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')  
+                // Remove more special characters
+                .replace(/\[|\]|\'|\"|\{|\}|\(|\)/g, '')  
+                // Replace multiple spaces with a single space
+                .replace(/\s+/g, ' ')  
+                // Clean up any leftover characters like backslashes
+                .replace(/\\+/g, '')  
+                // Double line breaks
+                .replace(/\n\n/g, '<br><br>')  
+                // Single line breaks
+                .replace(/\n/g, '<br>');  
+    
+            bubbleDiv.innerHTML = formattedMessage;
+            messageDiv.appendChild(bubbleDiv);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.classList.add('chat-message', 'bot', 'typing-indicator-container');
+            typingDiv.innerHTML = `
+                <div class="message-bubble">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            chatBox.appendChild(typingDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+            return typingDiv;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = chatBox.querySelector('.typing-indicator-container');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // Thêm biến session_id
+        let sessionId = localStorage.getItem('chatbot_session_id') || 'user_' + Date.now();
+        localStorage.setItem('chatbot_session_id', sessionId);
+
+        async function sendMessage() {
+            const messageText = userInput.value.trim();
+            if (messageText === '') return;
+
+            addMessage(messageText, 'user');
+            userInput.value = '';
+            const typingIndicator = showTypingIndicator();
+            
+            // Get CSRF token from cookies
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            
+            try {
+                const response = await fetch("/chatbot/get-response/", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token
+                    },
+                    body: JSON.stringify({ 
+                        message: messageText,
+                        clean_response: true,
+                        session_id: sessionId
+                    })
+                });
+
+                removeTypingIndicator();
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({reply: "Lỗi không xác định từ server."}));
+                    addMessage(`Lỗi: ${errorData.reply || response.statusText}`, 'bot');
+                    return;
+                }
+
+                const data = await response.json();
+                
+                // Cập nhật session_id nếu server trả về
+                if (data.session_id) {
+                    sessionId = data.session_id;
+                    localStorage.setItem('chatbot_session_id', sessionId);
+                }
+                
+                // Clean data before displaying
+                let cleanReply = data.reply
+                    .replace(/\[|\]|\'|\"|\{|\}|\(|\)/g, '')
+                    .replace(/\\+/g, '');
+                addMessage(cleanReply, 'bot');
+
+            } catch (error) {
+                removeTypingIndicator();
+                console.error('Error:', error);
+                addMessage('Xin lỗi, đã có lỗi xảy ra khi kết nối tới chatbot.', 'bot');
+            }
+        }
+
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Core framework
+Django>=5.0
+
+# Env var handling
+environs               # you import Env() from environs
+python-dotenv          # if you still use load_dotenv()
+
+# PostgreSQL driver
+psycopg2-binary        # easier install than psycopg2 source
+
+# UUID handling
+shortuuid              # for ShortUUIDField in models
+
+# Admin UI
+django-jazzmin
+
+# Tagging & rich text
+django-taggit
+django-ckeditor-5
+Pillow                 # image support for CKEditor & etc.
+
+# Payments
+django-paypal          # provides paypal.standard.ipn
+stripe                 # if you use the Stripe Python SDK in your code
+
+# Static file serving (if you go the WhiteNoise route)
+whitenoise
+
+# AI/Chatbot dependencies
+google-generativeai    # for Gemini AI integration
+fuzzywuzzy             # for fuzzy string matching
+python-Levenshtein     # optional but improves fuzzywuzzy performance
+pandas                 # for data processing
+
+# WSGI server for production
+gunicorn

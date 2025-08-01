@@ -1,0 +1,92 @@
+{% extends 'useradmin/base.html' %}
+{% load static %}
+{% load humanize %}
+{% block content %}
+
+<section class="content-main">
+    <div class="content-header">
+        <div>
+            <h2 class="content-title card-title">Products List</h2>
+            <p>Manage all your products from here</p>
+        </div>
+        <div>
+            <a href="{% url 'useradmin:add_product' %}" class="btn btn-primary btn-sm rounded">Create Product</a>
+        </div>
+    </div>
+    <div class="card mb-4">
+        <header class="card-header">
+            <div class="row align-items-center">
+                
+                <div class="col-md-2 col-6">
+                    <select class="form-select">
+                        <option selected>Status</option>
+                        <option>Active</option>
+                        <option>Disabled</option>
+                        <option>Show all</option>
+                    </select>
+                </div>
+            </div>
+        </header>
+        <div class="card-body">
+            {% for p in products %}
+            <div class="col-lg-3 col-md-4 col-sm-6 col-6">
+                <div class="product-cart-wrap">
+                    <div class="product-img-action-wrap">
+                        <div class="product-img product-img-zoom">
+                            <a href="{% url 'core:product-detail' p.pid %}">
+                                <img class="default-img" src="{{ p.image.url }}" alt="{{ p.title }}" />
+                            </a>
+                        </div>
+                        <div class="product-action-1">
+                            <a aria-label="Add To Wishlist" class="action-btn" href="javascript:void(0)" data-product-item="{{ p.id }}"><i class="fi-rs-heart"></i></a>
+                        </div>
+                    </div>
+                    <div class="product-content-wrap">
+                        <div class="product-category">
+                            <a href="{% url 'core:category-product-list' p.category.cid %}">{{ p.category.title }}</a>
+                        </div>
+                        <h2><a href="{% url 'core:product-detail' p.pid %}">{{ p.title }}</a></h2>
+                        <div class="product-rate-cover">
+                            <div class="product-rate d-inline-block">
+                                <div class="product-rating" style="width: 90%"></div>
+                            </div>
+                            <span class="font-small ml-5 text-muted">(4.0)</span>
+                        </div>
+                        <div class="product-card-bottom">
+                            <div class="product-price">
+                                <span>${{ p.price }}</span>
+                                {% if p.old_price %}
+                                <span class="old-price">${{ p.old_price }}</span>
+                                {% endif %}
+                            </div>
+                            <div class="add-cart">
+                                <!-- Hidden inputs cho add to cart -->
+                                <input type="hidden" class="product-pid-{{ p.id }}" value="{{ p.pid }}">
+                                <input type="hidden" class="product-id-{{ p.id }}" value="{{ p.id }}">
+                                <input type="hidden" class="product-title-{{ p.id }}" value="{{ p.title }}">
+                                <input type="hidden" class="product-image-{{ p.id }}" value="{{ p.image.url }}">
+                                <input type="hidden" class="product-price-{{ p.id }}" value="{{ p.price }}">
+                                <input type="hidden" class="product-quantity-{{ p.id }}" value="1">
+                                
+                                <a class="add add-to-cart-btn" data-index="{{ p.id }}" href="javascript:void(0)">
+                                    <i class="fi-rs-shopping-cart mr-5"></i>Add 
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <p class="text-center">No products found with current filters.</p>
+                <div class="text-center">
+                    <button class="btn btn-primary" onclick="location.reload()">Show All Products</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+</section>
+
+{% endblock content %}
