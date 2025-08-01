@@ -148,8 +148,12 @@ class Product(models.Model):
         return self.title
 
     def get_percentage(self):
-        new_price = (self.price / self.old_price) * 100
-        return new_price
+        if self.old_price and self.old_price > 0:
+            discount_percentage = ((self.old_price - self.price) / self.old_price) * 100
+            return max(
+                0, discount_percentage
+            )  # Ensure we don't return negative percentages
+        return 0
 
 
 class ProductImages(models.Model):
