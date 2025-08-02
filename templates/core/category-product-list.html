@@ -10,7 +10,7 @@
                         <div class="col-xl-3">
                             <h1 class="mb-15"> {{category.title}}</h1>
                             <div class="breadcrumb">
-                                <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                                <a href="{% url 'core:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
                                 <span></span> Shop <span></span> {{category.title}}
                             </div>
                         </div>
@@ -74,7 +74,7 @@
                           <div class="product-cart-wrap mb-30">
                             <div class="product-img-action-wrap">
                               <div class="product-img product-img-zoom">
-                                <a href="shop-product-right.html">
+                                <a href="{% url 'core:product-detail' p.pid %}">
                                   <img
                                     class="default-img"
                                     src="{{ p.image.url }}"
@@ -116,10 +116,10 @@
                             </div>
                             <div class="product-content-wrap">
                               <div class="product-category">
-                                <a href="shop-grid-right.html">{{ p.category.title }}</a>
+                                <a href="{% url 'core:category-product-list' p.category.cid %}">{{ p.category.title }}</a>
                               </div>
                               <h2>
-                                <a href="shop-product-right.html"
+                                <a href="{% url 'core:product-detail' p.pid %}"
                                   > {{ p.title }}</a
                                 >
                               </h2>
@@ -137,7 +137,7 @@
                               <div>
                                 <span class="font-small text-muted"
                                   >By
-                                  <a href="vendor-details-1.html">{{ p.vendor.title }}</a></span
+                                  <a href="{% url 'core:vendor-detail' p.vendor.vid %}">{{ p.vendor.title }}</a></span
                                 >
                               </div>
                               <div class="product-card-bottom">
@@ -146,7 +146,7 @@
                                   <span class="old-price">{{p.old_price}}</span>
                                 </div>
                                 <div class="add-cart">
-                                  <a class="add" href="shop-cart.html"
+                                  <a class="add" href="#"
                                     ><i class="fi-rs-shopping-cart mr-5"></i>Add
                                   </a>
                                 </div>
@@ -191,7 +191,7 @@
                                     <div class="product-img-action-wrap">
                                         <div class="product-img">
                                             <a href="shop-product-right.html">
-                                                <img src="assets/imgs/banner/banner-5.png" alt="" />
+                                                <img src="{% static 'assets/imgs/banner/banner-5.png' %}" alt="" />
                                             </a>
                                         </div>
                                     </div>
@@ -216,7 +216,7 @@
                                                     <span class="old-price">$33.8</span>
                                                 </div>
                                                 <div class="add-cart">
-                                                    <a class="add" href="shop-cart.html"><i class="fi-rs-shopping-cart mr-5"></i>Add </a>
+                                                    <a class="add" href="#"><i class="fi-rs-shopping-cart mr-5"></i>Add </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -228,7 +228,7 @@
                                     <div class="product-img-action-wrap">
                                         <div class="product-img">
                                             <a href="shop-product-right.html">
-                                                <img src="assets/imgs/banner/banner-6.png" alt="" />
+                                                <img src="{% static 'assets/imgs/banner/banner-6.png' %}" alt="" />
                                             </a>
                                         </div>
                                     </div>
@@ -253,7 +253,7 @@
                                                     <span class="old-price">$26.8</span>
                                                 </div>
                                                 <div class="add-cart">
-                                                    <a class="add" href="shop-cart.html"><i class="fi-rs-shopping-cart mr-5"></i>Add </a>
+                                                    <a class="add" href="#"><i class="fi-rs-shopping-cart mr-5"></i>Add </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -265,7 +265,7 @@
                                     <div class="product-img-action-wrap">
                                         <div class="product-img">
                                             <a href="shop-product-right.html">
-                                                <img src="assets/imgs/banner/banner-7.png" alt="" />
+                                                <img src="{% static 'assets/imgs/banner/banner-7.png' %}" alt="" />
                                             </a>
                                         </div>
                                     </div>
@@ -290,7 +290,7 @@
                                                     <span class="old-price">$13.8</span>
                                                 </div>
                                                 <div class="add-cart">
-                                                    <a class="add" href="shop-cart.html"><i class="fi-rs-shopping-cart mr-5"></i>Add </a>
+                                                    <a class="add" href="#"><i class="fi-rs-shopping-cart mr-5"></i>Add </a>
                                                 </div>
                                             </div>
                                         </div>
@@ -302,7 +302,7 @@
                                     <div class="product-img-action-wrap">
                                         <div class="product-img">
                                             <a href="shop-product-right.html">
-                                                <img src="assets/imgs/banner/banner-8.png" alt="" />
+                                                <img src="{% static 'assets/imgs/banner/banner-8.png' %}" alt="" />
                                             </a>
                                         </div>
                                     </div>
@@ -327,7 +327,7 @@
                                                     <span class="old-price">$16.8</span>
                                                 </div>
                                                 <div class="add-cart">
-                                                    <a class="add" href="shop-cart.html"><i class="fi-rs-shopping-cart mr-5"></i>Add </a>
+                                                    <a class="add" href="#"><i class="fi-rs-shopping-cart mr-5"></i>Add </a>
                                                 </div>
                                             </div>
                                         </div>
