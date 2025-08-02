@@ -35,6 +35,9 @@ urlpatterns = [
 # Serve media and static files
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    # The line below for static files is often not needed if you have 'django.contrib.staticfiles' in INSTALLED_APPS,
-    # but it doesn't hurt.
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    # In development, serve static files from STATICFILES_DIRS
+    if hasattr(settings, "STATICFILES_DIRS") and settings.STATICFILES_DIRS:
+        for static_dir in settings.STATICFILES_DIRS:
+            urlpatterns += static(settings.STATIC_URL, document_root=static_dir)
+    else:
+        urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
