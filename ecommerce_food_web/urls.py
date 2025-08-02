@@ -19,7 +19,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from core import views  # Import views from core app
 
 app_name = "core"
 
@@ -29,7 +28,6 @@ urlpatterns = [
     path("user/", include("userauths.urls")),
     path("useradmin/", include("useradmin.urls")),
     path("ckeditor5/", include("django_ckeditor_5.urls")),
-    path("add-to-cart/", views.add_to_cart, name="add-to-cart"),
 ]
 
 # Serve media and static files

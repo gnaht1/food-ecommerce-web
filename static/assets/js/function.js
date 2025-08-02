@@ -133,8 +133,8 @@ $(document).ready(function () {
 
     })
 
-    // Add to cart functionality
-    $(".add-to-cart-btn").on("click", function () {
+    // Add to cart functionality with event delegation
+    $(document).on("click", ".add-to-cart-btn", function () {
 
         let this_val = $(this)
         let index = this_val.attr("data-index")
