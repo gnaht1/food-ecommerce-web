@@ -224,8 +224,8 @@
                 <div class="header-info">
                   <ul>
                     <li><a href="page-about.html">About Us</a></li>
-                    <li><a href="page-account.html">My Account</a></li>
-                    <li><a href="shop-wishlist.html">Wishlist</a></li>
+                    <li><a href="{% url 'core:dashboard' %}">My Account</a></li>
+                    <li><a href="{% url 'core:wishlist' %}">Wishlist</a></li>
                     {% comment %} <li><a href="shop-order.html">Order Tracking</a></li> {% endcomment %}
                   </ul>
                 </div>
@@ -336,7 +336,7 @@
                       {% endfor %}
                     </select>
                     <input type="text" placeholder="Search for items..." name="q" value="{{ request.GET.q }}" />
-                    <button class="fas fa-search" type="submit"></button>
+                    <button type="submit"><i class="fas fa-search"></i></button>
                   </form>
                 </div>
                 <div class="header-action-right">
