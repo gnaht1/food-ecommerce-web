@@ -139,15 +139,30 @@ $(document).ready(function () {
         let this_val = $(this)
         let index = this_val.attr("data-index")
 
-        let quantity = $(".product-quantity-" + index).val()
-        let product_title = $(".product-title-" + index).val()
+        // Check if we're on product detail page or product list page
+        let quantity;
+        if ($("#product-quantity").length) {
+            // Product detail page - use the main quantity input
+            quantity = $("#product-quantity").val()
+        } else {
+            // Product list page - use the hidden quantity input
+            quantity = $(".product-quantity-" + index).val()
+        }
 
+        let product_title = $(".product-title-" + index).val()
         let product_id = $(".product-id-" + index).val()
-        let product_price = $(".product-price-" + index).val()
+
+        // Handle price - get from hidden input or current price display
+        let product_price;
+        if ($(".product-price-" + index).length) {
+            product_price = $(".product-price-" + index).val()
+        } else {
+            // Fallback to getting price from display element
+            product_price = $("#current-product-price").text()
+        }
 
         let product_pid = $(".product-pid-" + index).val()
         let product_image = $(".product-image-" + index).val()
-
 
         // Debug: Kiểm tra dữ liệu
         console.log("Data being sent:", {
@@ -160,7 +175,7 @@ $(document).ready(function () {
         });
 
         $.ajax({
-            url: '/add-to-cart/',  // Sử dụng URL cứng thay vì template tag
+            url: '/add-to-cart/',
             type: 'GET',
             data: {
                 'id': product_id,
@@ -183,7 +198,7 @@ $(document).ready(function () {
                 }
 
                 setTimeout(function () {
-                    this_val.html('<i class="fi-rs-shopping-cart mr-5"></i>Add');
+                    this_val.html('<i class="fi-rs-shopping-cart mr-5"></i>Add to cart');
                 }, 2000);
             },
             error: function (xhr, status, error) {
@@ -195,7 +210,7 @@ $(document).ready(function () {
 
                 this_val.html("Error");
                 setTimeout(function () {
-                    this_val.html('<i class="fi-rs-shopping-cart mr-5"></i>Add');
+                    this_val.html('<i class="fi-rs-shopping-cart mr-5"></i>Add to cart');
                 }, 2000);
             }
         });

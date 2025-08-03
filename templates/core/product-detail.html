@@ -81,20 +81,20 @@
                                                     <span class="qty-val">1</span>
                                                     <a href="#" class="qty-up"><i class="fi-rs-angle-small-up"></i></a>
                                                 </div>> -->
-                                                    <br>
+                                                    {% comment %} <br>
                                                     <input type="number" value="1" name="" id="product-quantity" class="w-25 mb-10 product-quantity-{{ p.id }}">
-                                                    <br>
+                                                    <br> {% endcomment %}
                                                 <div class="product-extra-link2">
 
-                                                        {% comment %} <input type="hidden" value="1" id="product-quantity" class="product-quantity-{{ p.id }}"> {% endcomment %}
                                                         <input type="hidden" class="product-pid-{{ p.id }}" value="{{ p.pid }}">
                                                         <input type="hidden" class="product-image-{{ p.id }}" value="{{ p.image.url }}">
                                                         <input type="hidden" class="product-id-{{ p.id }}" value="{{ p.id }}">
                                                         <input type="hidden" class="product-title-{{ p.id }}" value="{{ p.title }}">
+                                                        <input type="hidden" class="product-price-{{ p.id }}" value="{{ p.price }}">
 
                                                     <button type="submit" class="button button-add-to-cart add-to-cart-btn" data-index="{{ p.id }}" id="add-to-cart-btn"><i class="fi-rs-shopping-cart"></i>Add to cart</button>
-                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up" href="shop-wishlist.html"><i class="fi-rs-heart"></i></a>
-                                                    <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a>
+                                                    <a aria-label="Add To Wishlist" class="action-btn hover-up add-to-wishlist" href="javascript:void(0)" data-product-item="{{ p.id }}"><i class="fi-rs-heart"></i></a>
+                                                    {% comment %} <a aria-label="Compare" class="action-btn hover-up" href="shop-compare.html"><i class="fi-rs-shuffle"></i></a> {% endcomment %}
                                                 </div>
                                             </div>
                                             <div class="font-xs">
@@ -491,15 +491,15 @@
                                     </div>
                                     <div>
                                         <p class="text-brand font-xs">Chat response</p>
-                                        <h4 class="mb-0">{{p.vendor.chat_resp_time}}%</h4>
+                                        <h4 class="mb-0">{{p.vendor.chat_resp_time}}</h4>
                                     </div>
                                 </div>
                                 <ul>
                                     <li class="hr"><span></span></li>
                                 </ul>
-                                <p>Become a Vendor? <a href="page-register.html"> Register now</a></p>
+                                {% comment %} <p>Become a Vendor? <a href="page-register.html"> Register now</a></p> {% endcomment %}
                             </div>
-                            <div class="sidebar-widget widget-category-2 mb-30">
+                            {% comment %} <div class="sidebar-widget widget-category-2 mb-30">
                                 <h5 class="section-title style-1 mb-30">Category</h5>
                                 <ul>
                                     <li>
@@ -518,9 +518,9 @@
                                         <a href="shop-grid-right.html"> <img src="{% static 'assets/imgs/theme/icons/category-5.svg' %}" alt="" />Fresh Fruit</a><span class="count">87</span>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> {% endcomment %}
                             <!-- Fillter By Price -->
-                            <div class="sidebar-widget price_range range mb-30">
+                            {% comment %} <div class="sidebar-widget price_range range mb-30">
                                 <h5 class="section-title style-1 mb-30">Fill by price</h5>
                                 <div class="price-filter">
                                     <div class="price-filter-inner">
@@ -558,46 +558,28 @@
                                     </div>
                                 </div>
                                 <a href="shop-grid-right.html" class="btn btn-sm btn-default"><i class="fi-rs-filter mr-5"></i> Fillter</a>
-                            </div>
+                            </div> {% endcomment %}
                             <!-- Product sidebar Widget -->
                             <div class="sidebar-widget product-sidebar mb-30 p-30 bg-grey border-radius-10">
                                 <h5 class="section-title style-1 mb-30">New products</h5>
+                                {% for new_product in products|slice:":3" %}
                                 <div class="single-post clearfix">
                                     <div class="image">
-                                        <img src="{% static 'assets/imgs/shop/thumbnail-3.jpg' %}" alt="#" />
+                                        <img src="{{ new_product.image.url }}" alt="{{ new_product.title }}" style="width: 80px; height: 80px; object-fit: cover;" />
                                     </div>
                                     <div class="content pt-10">
-                                        <h5><a href="shop-product-detail.html">Chen Cardigan</a></h5>
-                                        <p class="price mb-0 mt-5">$99.50</p>
+                                        <h5><a href="{% url 'core:product-detail' new_product.pid %}">{{ new_product.title|truncatechars:20 }}</a></h5>
+                                        <p class="price mb-0 mt-5">${{ new_product.price }}</p>
                                         <div class="product-rate">
                                             <div class="product-rating" style="width: 90%"></div>
                                         </div>
                                     </div>
                                 </div>
+                                {% empty %}
                                 <div class="single-post clearfix">
-                                    <div class="image">
-                                        <img src="{% static 'assets/imgs/shop/thumbnail-4.jpg' %}" alt="#" />
-                                    </div>
-                                    <div class="content pt-10">
-                                        <h6><a href="shop-product-detail.html">Chen Sweater</a></h6>
-                                        <p class="price mb-0 mt-5">$89.50</p>
-                                        <div class="product-rate">
-                                            <div class="product-rating" style="width: 80%"></div>
-                                        </div>
-                                    </div>
+                                    <p class="text-muted">No new products available</p>
                                 </div>
-                                <div class="single-post clearfix">
-                                    <div class="image">
-                                        <img src="{% static 'assets/imgs/shop/thumbnail-5.jpg' %}" alt="#" />
-                                    </div>
-                                    <div class="content pt-10">
-                                        <h6><a href="shop-product-detail.html">Colorful Jacket</a></h6>
-                                        <p class="price mb-0 mt-5">$25</p>
-                                        <div class="product-rate">
-                                            <div class="product-rating" style="width: 60%"></div>
-                                        </div>
-                                    </div>
-                                </div>
+                                {% endfor %}
                             </div>
                             <div class="banner-img wow fadeIn mb-lg-0 animated d-lg-block d-none">
                                 <img src="{% static 'assets/imgs/banner/banner-11.png' %}" alt="" />
