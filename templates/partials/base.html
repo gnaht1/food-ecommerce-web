@@ -363,7 +363,7 @@
                           alt="Nest"
                           src="{% static 'assets/imgs/theme/icons/icon-heart.svg' %}"
                         />
-                        <span class="pro-count blue">0</span>
+                        <span class="pro-count blue wishlist-items-count">{% if request.user.is_authenticated %}{{ request.user.wishlist.count }}{% else %}0{% endif %}</span>
                       </a>
                       <a href="{% url 'core:wishlist' %}"><span class="lable">Wishlist</span></a>
                     </div>
@@ -374,7 +374,7 @@
                           alt="Nest"
                           src="{% static 'assets/imgs/theme/icons/icon-cart.svg' %}"
                         />
-                        <span class="pro-count blue cart-items-count">0</span>
+                        <span class="pro-count blue cart-items-count">{{ request.session.cart_data_obj|length }}</span>
                       </a>
                       <a href="{% url 'core:cart' %}"><span class="lable">Cart</span></a>
                     </div>
@@ -637,7 +637,7 @@
                         alt="Nest"
                         src="{% static 'assets/imgs/theme/icons/icon-heart.svg' %}"
                       />
-                      <span class="pro-count white">{{ wishlist.count }}</span>
+                      <span class="pro-count white wishlist-items-count">{% if request.user.is_authenticated %}{{ request.user.wishlist.count }}{% else %}0{% endif %}</span>
                     </a>
                   </div>
                   <div class="header-action-icon-2">

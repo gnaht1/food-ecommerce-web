@@ -296,7 +296,6 @@ $(document).ready(function () {
         let product_id = $(this).attr("data-product-item")
         let this_val = $(this)
 
-
         console.log("PRoduct ID IS", product_id);
 
         $.ajax({
@@ -309,15 +308,17 @@ $(document).ready(function () {
                 console.log("Adding to wishlist...")
             },
             success: function (response) {
-                // this_val.html("✓")
                 this_val.html("<i class='fas fa-heart text-danger'></i>")
                 if (response.bool === true) {
                     console.log("Added to wishlist...");
+                    // Update wishlist counter
+                    if (response.wishlist_count) {
+                        $(".wishlist-items-count").text(response.wishlist_count);
+                    }
                 }
             }
         })
     })
-
 
     // Remove from wishlist
     $(document).on("click", ".delete-wishlist-product", function () {
@@ -337,6 +338,10 @@ $(document).ready(function () {
             },
             success: function (response) {
                 $("#wishlist-list").html(response.data)
+                // Update wishlist counter
+                if (response.wishlist_count !== undefined) {
+                    $(".wishlist-items-count").text(response.wishlist_count);
+                }
             }
         })
     })
