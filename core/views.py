@@ -811,3 +811,60 @@ def privacy_policy(request):
 
 def terms_of_service(request):
     return render(request, "core/terms_of_service.html")
+
+
+@login_required
+def checkout_initiate(request):
+    """Create order from cart and redirect to checkout page"""
+    if "cart_data_obj" not in request.session or not request.session["cart_data_obj"]:
+        messages.error(request, "Your cart is empty")
+        return redirect("core:cart")
+
+    total_amount = 0
+
+    # Calculate total amount
+    for p_id, item in request.session["cart_data_obj"].items():
+        total_amount += int(item["qty"]) * float(item["price"])
+
+    # Get user's default address
+    user_address = None
+    try:
+        user_address = Address.objects.get(user=request.user, status=True)
+    except Address.DoesNotExist:
+        # If no default address, try to get any address
+        user_address = Address.objects.filter(user=request.user).first()
+
+    # Create order with basic info
+    order = CartOrder.objects.create(
+        user=request.user,
+        price=total_amount,
+        full_name=request.user.get_full_name() or request.user.username,
+        email=request.user.email or "",
+        phone=user_address.mobile if user_address else "",
+        address=user_address.address if user_address else "",
+        city="",  # Set default empty values
+        state="",
+        country="",
+    )
+
+    # Create order items
+    for p_id, item in request.session["cart_data_obj"].items():
+        CartOrderItems.objects.create(
+            order=order,
+            invoice_no="INVOICE_NO-" + str(order.id),
+            item=item["title"],
+            image=item["image"],
+            qty=item["qty"],
+            price=item["price"],
+            total=float(item["qty"]) * float(item["price"]),
+        )
+
+    # Clear cart after creating order
+    del request.session["cart_data_obj"]
+    request.session.modified = True
+
+    return redirect("core:checkout", order.oid)
+    del request.session["cart_data_obj"]
+    request.session.modified = True
+
+    return redirect("core:checkout", order.oid)

@@ -23,6 +23,7 @@ from core.views import (
     cart_view,
     update_cart,
     checkout,
+    checkout_initiate,
     payment_completed_view,
     payment_failed_view,
     customer_dashboard,
@@ -68,6 +69,8 @@ urlpatterns = [
     path("update-cart/", update_cart, name="update-cart"),
     # Checkout Page Url
     path("checkout/<oid>/", checkout, name="checkout"),
+    # Checkout Initiate URL
+    path("checkout-initiate/", checkout_initiate, name="checkout-initiate"),
     # Paypal URL
     path("paypal/", include("paypal.standard.ipn.urls")),
     # Payment Successful
