@@ -392,10 +392,8 @@ def add_to_cart(request):
         if "cart_data_obj" in request.session:
             cart_data = request.session["cart_data_obj"]
             if str(product_id) in cart_data:
-                # Update existing product quantity
-                existing_qty = int(cart_data[str(product_id)]["qty"])
-                new_qty = existing_qty + qty_int
-                cart_data[str(product_id)]["qty"] = str(new_qty)
+                # If product exists, set quantity to the new quantity (don't add to existing)
+                cart_data[str(product_id)]["qty"] = str(qty_int)
             else:
                 # Add new product
                 cart_data.update(cart_product)
