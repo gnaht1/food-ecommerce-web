@@ -433,6 +433,7 @@ def cart_view(request):
             for p_id, item in cart_data.items():
                 price = float(item.get("price", 0))
                 qty = int(item.get("qty", 1))
+                item['subtotal'] = price * qty
                 cart_total_amount += price * qty
         else:
             cart_data = {}
@@ -492,7 +493,10 @@ def update_cart(request):
     cart_total_amount = 0
     if "cart_data_obj" in request.session:
         for p_id, item in request.session["cart_data_obj"].items():
-            cart_total_amount += int(item["qty"]) * float(item["price"])
+            price = float(item.get("price", 0))
+            qty = int(item.get("qty", 1))
+            item['subtotal'] = price * qty
+            cart_total_amount += price * qty
 
     context = render_to_string(
         "core/async/cart-list.html",
