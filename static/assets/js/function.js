@@ -217,7 +217,7 @@ $(document).ready(function () {
     })
 
 
-    $(".delete-product").on("click", function () {
+    $(document).on("click", ".delete-product", function () {
 
         let product_id = $(this).attr("data-product")
         let this_val = $(this)
@@ -304,6 +304,26 @@ $(document).ready(function () {
             }
         })
     })
+
+
+    // Clear Cart
+    $(document).on("click", "#clear-cart-btn", function (e) {
+        e.preventDefault();
+        $.ajax({
+            url: "/clear-cart/",
+            dataType: "json",
+            beforeSend: function () {
+                console.log("Clearing cart...");
+            },
+            success: function (response) {
+                $(".cart-items-count").text(response.totalcartitems);
+                $("#cart-list").html(response.data);
+            },
+            error: function (xhr, status, error) {
+                console.error("AJAX Error:", status, error);
+            }
+        });
+    });
 
 
     // Adding to wishlist

@@ -10,6 +10,7 @@ from core.views import (
     category_list_view,
     category_product_list_view,
     delete_item_from_cart,
+    clear_cart,
     index,
     make_address_default,
     product_detail_view,
@@ -65,6 +66,8 @@ urlpatterns = [
     path("cart/", views.cart_view, name="cart"),
     # Delete item from cart URL
     path("delete-from-cart/", delete_item_from_cart, name="delete-from-cart"),
+    # Clear cart
+    path("clear-cart/", views.clear_cart, name="clear-cart"),
     # Update cart
     path("update-cart/", update_cart, name="update-cart"),
     # Checkout Page Url
