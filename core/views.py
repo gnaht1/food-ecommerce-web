@@ -35,6 +35,8 @@ from django.db.models.functions import ExtractMonth
 from django.core import serializers
 
 import stripe
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 
 
 # Create your views here.
@@ -433,7 +435,7 @@ def cart_view(request):
             for p_id, item in cart_data.items():
                 price = float(item.get("price", 0))
                 qty = int(item.get("qty", 1))
-                item['subtotal'] = price * qty
+                item["subtotal"] = price * qty
                 cart_total_amount += price * qty
         else:
             cart_data = {}
@@ -495,7 +497,7 @@ def update_cart(request):
         for p_id, item in request.session["cart_data_obj"].items():
             price = float(item.get("price", 0))
             qty = int(item.get("qty", 1))
-            item['subtotal'] = price * qty
+            item["subtotal"] = price * qty
             cart_total_amount += price * qty
 
     context = render_to_string(
@@ -687,21 +689,51 @@ def customer_dashboard(request):
         total_orders.append(i["count"])
 
     if request.method == "POST":
-        address = request.POST.get("address")
-        mobile = request.POST.get("mobile")
+        # Handle address addition
+        if "address" in request.POST and "mobile" in request.POST:
+            address_text = request.POST.get("address")
+            mobile = request.POST.get("mobile")
 
-        new_address = Address.objects.create(
-            user=request.user,
-            address=address,
-            mobile=mobile,
-        )
-        messages.success(request, "Address added successfully")
-        return redirect("core:dashboard")
-    else:
-        print("Error")
+            new_address = Address.objects.create(
+                user=request.user,
+                address=address_text,
+                mobile=mobile,
+            )
+            messages.success(request, "Address added successfully")
+            return redirect("core:dashboard")
 
-    user_profile = Profile.objects.get(user=request.user)
-    print("user profile is: ##################", user_profile)
+        # Handle password change
+        elif "current_password" in request.POST:
+            current_password = request.POST.get("current_password")
+            new_password = request.POST.get("new_password")
+            confirm_password = request.POST.get("confirm_password")
+
+            # Validate current password
+            if not request.user.check_password(current_password):
+                messages.error(request, "Current password is incorrect.")
+                return redirect("core:dashboard")
+
+            # Validate new passwords match
+            if new_password != confirm_password:
+                messages.error(request, "New passwords do not match.")
+                return redirect("core:dashboard")
+
+            # Validate password length
+            if len(new_password) < 8:
+                messages.error(request, "Password must be at least 8 characters long.")
+                return redirect("core:dashboard")
+
+            # Update password
+            request.user.set_password(new_password)
+            request.user.save()
+
+            # Keep user logged in after password change
+            update_session_auth_hash(request, request.user)
+
+            messages.success(request, "Password changed successfully.")
+            return redirect("core:dashboard")
+
+    user_profile = profile
 
     context = {
         "user_profile": profile,
@@ -887,5 +919,8 @@ def clear_cart(request):
         },
     )
     return JsonResponse(
-        {"data": context, "totalcartitems": len(request.session.get("cart_data_obj", {}))}
+        {
+            "data": context,
+            "totalcartitems": len(request.session.get("cart_data_obj", {})),
+        }
     )
