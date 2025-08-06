@@ -18,13 +18,13 @@ def register_view(request):
             username = form.cleaned_data.get("username")
             messages.success(
                 request,
-                f"Tài khoản {username} đã được tạo thành công! Vui lòng đăng nhập.",
+                f"Account {username} has been successfully created! Please log in.",
             )
 
-            # Redirect về trang login thay vì tự động đăng nhập
+            # Redirect to the login page instead of auto-login
             return redirect("userauths:sign-in")
         else:
-            messages.error(request, "Vui lòng kiểm tra lại thông tin đăng ký.")
+            messages.error(request, "Please check your registration information again.")
     else:
         form = UserRegisterForm()
 
@@ -44,8 +44,10 @@ def login_view(request):
         password = request.POST.get("password")
 
         try:
+            # Check if user exists
             user = User.objects.get(email=email)
 
+            # If user exists, try to authenticate
             user = authenticate(request, email=email, password=password)
 
             if user is not None:
@@ -53,9 +55,11 @@ def login_view(request):
                 messages.success(request, "You are logged in.")
                 return redirect("core:index")
             else:
-                messages.warning(request, "User Does Not Exist, create an account.")
+                # User exists but password is incorrect
+                messages.warning(request, "Incorrect password.")
 
-        except:
+        except User.DoesNotExist:
+            # User doesn't exist
             messages.warning(request, f"User with {email} does not exist")
 
     return render(request, "userauths/sign-in.html")
