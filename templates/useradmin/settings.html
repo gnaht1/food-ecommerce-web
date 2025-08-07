@@ -5,7 +5,7 @@
 
 <section class="content-main">
     <div class="content-header">
-        <h2 class="content-title">Profile setting</h2>
+        <h2 class="content-title">Shop setting</h2>
     </div>
     <div class="card">
         <div class="card-body">
@@ -18,42 +18,65 @@
                                 <div class="col-lg-8">
                                     <div class="row gx-3">
                                         <div class="col-12 mb-3">
-                                            <label class="form-label">Full Name</label>
-                                            <input class="form-control" name="full_name" type="text" value="{{request.user.profile.full_name}}" placeholder="Enter full name" />
+                                            <label class="form-label">Shop Name</label>
+                                            <input class="form-control" name="title" type="text" value="{{vendor.title}}" placeholder="Enter shop name" />
                                         </div>
-                                        <div class="col-6 mb-3">
-                                            <label class="form-label">Email</label>
-                                            <input class="form-control bg-light" name="email" value="{{request.user.email}}" readonly type="text" placeholder="Type here" />
-                                        </div>
-                                        <div class="col-lg-6 mb-3">
-                                            <label class="form-label">Mobile</label>
-                                            <input class="form-control" name="phone" value="{{request.user.profile.phone}}" type="text" placeholder="+123 456 7890" />
-                                        </div>
-                                         <div class="col-lg-12 mb-3">
-                                            <label class="form-label">Bio</label>
-                                            <input class="form-control" name="bio" value="{{request.user.profile.bio}}" type="text" placeholder="Type here" />
+                                        <div class="col-lg-12 mb-3">
+                                            <label class="form-label">Description</label>
+                                            <textarea class="form-control" name="description" placeholder="Type here">{{vendor.description}}</textarea>
                                         </div>
                                         <div class="col-lg-6 mb-3">
                                             <label class="form-label">Address</label>
-                                            <input class="form-control" name="address" value="{{request.user.profile.address}}" type="text" placeholder="Type here" />
+                                            <input class="form-control" name="address" value="{{vendor.address}}" type="text" placeholder="Type here" />
                                         </div>
                                         <div class="col-lg-6 mb-3">
-                                            <label class="form-label">Country</label>
-                                            <input class="form-control" name="country" value="{{request.user.profile.country}}" type="text" placeholder="Type here" />
+                                            <label class="form-label">Contact</label>
+                                            <input class="form-control" name="contact" value="{{vendor.contact}}" type="text" placeholder="Type here" />
+                                        </div>
+                                        <div class="col-lg-6 mb-3">
+                                            <label class="form-label">Chat Response Time</label>
+                                            <input class="form-control" name="chat_resp_time" value="{{vendor.chat_resp_time}}" type="text" placeholder="eg. 1 hour" />
+                                        </div>
+                                        <div class="col-lg-6 mb-3">
+                                            <label class="form-label">Shipping On Time</label>
+                                            <input class="form-control" name="shipping_on_time" value="{{vendor.shipping_on_time}}" type="text" placeholder="eg. 99%" />
+                                        </div>
+                                        <div class="col-lg-6 mb-3">
+                                            <label class="form-label">Authentic Rating</label>
+                                            <input class="form-control" name="authentic_rating" value="{{vendor.authentic_rating}}" type="text" placeholder="eg. 4.5" />
+                                        </div>
+                                        <div class="col-lg-6 mb-3">
+                                            <label class="form-label">Days Return</label>
+                                            <input class="form-control" name="days_return" value="{{vendor.days_return}}" type="text" placeholder="eg. 14 days" />
+                                        </div>
+                                        <div class="col-lg-6 mb-3">
+                                            <label class="form-label">Warranty Period</label>
+                                            <input class="form-control" name="warranty_period" value="{{vendor.warranty_period}}" type="text" placeholder="eg. 1 year" />
                                         </div>
                                     </div>
                                 </div>
                                 <aside class="col-lg-4">
                                     <figure class="text-lg-center">
-                                        
-                                        {% if profile.image %}
-                                            <img class="img-lg mb-3 img-avatar" src="{{profile.image.url}}" alt="User Photo" />
+                                        <label>Shop Image</label>
+                                        {% if vendor.image %}
+                                            <img class="img-lg mb-3 img-avatar" src="{{vendor.image.url}}" alt="Vendor Photo" />
                                         {% else %}
-                                            <img class="img-lg mb-3 img-avatar" src="https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2281862025.jpg" alt="User Photo" />
+                                            <img class="img-lg mb-3 img-avatar" src="https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2281862025.jpg" alt="Vendor Photo" />
                                         {% endif %}
-                                            
                                         <figcaption>
                                             <input type="file" class="form-control-file" name="image">
+                                        </figcaption>
+                                    </figure>
+                                    <hr>
+                                    <figure class="text-lg-center">
+                                        <label>Shop Cover Image</label>
+                                        {% if vendor.cover_image %}
+                                            <img class="img-lg mb-3 img-avatar" src="{{vendor.cover_image.url}}" alt="Vendor Cover Photo" />
+                                        {% else %}
+                                            <img class="img-lg mb-3 img-avatar" src="https://www.shutterstock.com/image-vector/vector-flat-illustration-grayscale-avatar-600nw-2281862025.jpg" alt="Vendor Cover Photo" />
+                                        {% endif %}
+                                        <figcaption>
+                                            <input type="file" class="form-control-file" name="cover_image">
                                         </figcaption>
                                     </figure>
                                 </aside>

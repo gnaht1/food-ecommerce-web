@@ -176,32 +176,45 @@ def reviews(request):
 
 @admin_required
 def settings(request):
-    profile = Profile.objects.get(user=request.user)
+    vendor = Vendor.objects.get(user=request.user)
 
     if request.method == "POST":
-        image = request.FILES.get("image")
-        full_name = request.POST.get("full_name")
-        phone = request.POST.get("phone")
-        bio = request.POST.get("bio")
+        # Get data from the form
+        title = request.POST.get("title")
+        description = request.POST.get("description")
         address = request.POST.get("address")
-        country = request.POST.get("country")
-        print("image ===========", image)
+        contact = request.POST.get("contact")
+        chat_resp_time = request.POST.get("chat_resp_time")
+        shipping_on_time = request.POST.get("shipping_on_time")
+        authentic_rating = request.POST.get("authentic_rating")
+        days_return = request.POST.get("days_return")
+        warranty_period = request.POST.get("warranty_period")
+        
+        image = request.FILES.get("image")
+        cover_image = request.FILES.get("cover_image")
 
-        if image != None:
-            profile.image = image
-        profile.full_name = full_name
-        profile.phone = phone
-        profile.bio = bio
-        profile.address = address
-        profile.country = country
+        # Update vendor object
+        vendor.title = title
+        vendor.description = description
+        vendor.address = address
+        vendor.contact = contact
+        vendor.chat_resp_time = chat_resp_time
+        vendor.shipping_on_time = shipping_on_time
+        vendor.authentic_rating = authentic_rating
+        vendor.days_return = days_return
+        vendor.warranty_period = warranty_period
 
-        profile.save()
-
-        messages.success(request, "Profile Updated Successfully")
+        if image is not None:
+            vendor.image = image
+        if cover_image is not None:
+            vendor.cover_image = cover_image
+        
+        vendor.save()
+        messages.success(request, "Shop Settings Updated Successfully")
         return redirect("useradmin:settings")
 
     context = {
-        "profile": profile,
+        "vendor": vendor,
     }
     return render(request, "useradmin/settings.html", context)
 
