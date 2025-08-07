@@ -7,23 +7,28 @@
             <h2 class="content-title card-title">Order List</h2>
             <p>Manage all your orders from here</p>
         </div>
-        <div>
-            <input type="text" placeholder="Search order ID" class="form-control bg-white" />
-        </div>
     </div>
     <div class="card mb-4">
         <header class="card-header">
             <div class="row gx-3">
-                <div class="col-lg-4 col-md-6 me-auto">
-                    <input type="text" placeholder="Search..." class="form-control" />
+                <div class="col-lg-6 col-md-6 me-auto">
+                    <form method="GET" action="{% url 'useradmin:orders' %}">
+                        <input type="hidden" name="status" value="{{ selected_status|default:'' }}">
+                        <div class="input-group">
+                            <input type="text" placeholder="Search by Order ID, Name, Email, or Phone" class="form-control" name="q" value="{{ search_query|default:'' }}">
+                            <button class="btn btn-light bg-white" type="submit"><i class="material-icons md-search"></i></button>
+                        </div>
+                    </form>
                 </div>
                 <div class="col-lg-2 col-6 col-md-3">
-                    <select class="form-select">
-                        <option>Status</option>
-                        <option>Active</option>
-                        <option>Disabled</option>
-                        <option>Show all</option>
-                    </select>
+                    <form method="GET" action="{% url 'useradmin:orders' %}">
+                        <input type="hidden" name="q" value="{{ search_query|default:'' }}">
+                        <select class="form-select" name="status" onchange="this.form.submit()">
+                            <option value="">All Status</option>
+                            <option value="paid" {% if selected_status == 'paid' %}selected{% endif %}>Paid</option>
+                            <option value="not_paid" {% if selected_status == 'not_paid' %}selected{% endif %}>Not Paid</option>
+                        </select>
+                    </form>
                 </div>
                 <div class="col-lg-2 col-6 col-md-3">
                     <select class="form-select">

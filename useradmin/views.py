@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.db.models import Sum
+from django.db.models import Sum, Q
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth.hashers import check_password
@@ -66,10 +66,20 @@ def dashboard(request):
 @admin_required
 def products(request):
     vendor = Vendor.objects.get(user=request.user)
-    products = Product.objects.filter(vendor=vendor).order_by("-id")
+    
+    # Start with all products for the vendor
+    products_query = Product.objects.filter(vendor=vendor).order_by("-id")
+    
+    # Get the status from the request
+    status = request.GET.get('status')
+    
+    # Filter by status if provided and valid
+    if status in ['draft', 'disabled', 'in_review', 'published', 'rejected']:
+        products_query = products_query.filter(product_status=status)
 
     context = {
-        "products": products,
+        "products": products_query,
+        "selected_status": status, # To keep the dropdown on the selected value
     }
     return render(request, "useradmin/products.html", context)
 
@@ -121,10 +131,28 @@ def delete_product(request, pid):
 @admin_required
 def orders(request):
     vendor = Vendor.objects.get(user=request.user)
-    orders = CartOrder.objects.filter(cartorderitems__product__vendor=vendor).distinct().order_by("-id")
+    orders_query = CartOrder.objects.filter(cartorderitems__product__vendor=vendor).distinct().order_by("-id")
+
+    search_query = request.GET.get('q')
+    status_query = request.GET.get('status')
+
+    if search_query:
+        orders_query = orders_query.filter(
+            Q(oid__icontains=search_query) |
+            Q(full_name__icontains=search_query) |
+            Q(email__icontains=search_query) |
+            Q(phone__icontains=search_query)
+        ).distinct()
+
+    if status_query == 'paid':
+        orders_query = orders_query.filter(paid_status=True)
+    elif status_query == 'not_paid':
+        orders_query = orders_query.filter(paid_status=False)
 
     context = {
-        "orders": orders,
+        "orders": orders_query,
+        "search_query": search_query,
+        "selected_status": status_query,
     }
     return render(request, "useradmin/orders.html", context)
 

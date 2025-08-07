@@ -17,13 +17,17 @@
         <header class="card-header">
             <div class="row align-items-center">
                 
-                <div class="col-md-2 col-6">
-                    <select class="form-select">
-                        <option selected>Status</option>
-                        <option>Active</option>
-                        <option>Disabled</option>
-                        <option>Show all</option>
-                    </select>
+                <div class="col-md-3 col-6">
+                    <form method="GET" action="{% url 'useradmin:products' %}">
+                        <select class="form-select" name="status" onchange="this.form.submit()">
+                            <option value="">All</option>
+                            <option value="published" {% if selected_status == 'published' %}selected{% endif %}>Published</option>
+                            <option value="in_review" {% if selected_status == 'in_review' %}selected{% endif %}>In Review</option>
+                            <option value="draft" {% if selected_status == 'draft' %}selected{% endif %}>Draft</option>
+                            <option value="disabled" {% if selected_status == 'disabled' %}selected{% endif %}>Disabled</option>
+                            <option value="rejected" {% if selected_status == 'rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                    </form>
                 </div>
             </div>
         </header>
