@@ -13,14 +13,13 @@
             <div class="row">
                 <div class="col-xl col-lg flex-grow-0" style="flex-basis: 230px;">
                     <div class="img-thumbnail shadow w-100 bg-white position-relative text-center" style="height: 190px; width: 200px; margin-top: -120px;">
-                        <img src="{{ request.user.profile.image.url|default:'https://www.testhouse.net/wp-content/uploads/2021/11/default-avatar.jpg' }}" class="center-xy img-fluid" alt="Logo Brand" />
-
+                        <img src="{{ vendor.image.url }}" class="center-xy img-fluid" alt="Logo Brand" />
                     </div>
                 </div>
                 <div class="col-xl col-lg">
-                    <h3>{{request.user.profile.full_name}}</h3>
-                    <p class="mt-0 mb-0">{{request.user.email}}</p>
-                    <p class="mt-0 mb-0">{{request.user.profile.bio}}</p>
+                    <h3>{{vendor.title}}</h3>
+                    <p class="mt-0 mb-0">{{vendor.user.email}}</p>
+                    <p class="mt-0 mb-0">{{vendor.description|safe}}</p>
                 </div>
             </div>
             <!-- card-body.// -->
@@ -36,18 +35,17 @@
                 </div>
                 <!--  col.// -->
                 <div class="col-sm-6 col-lg-4 col-xl-3">
-                    <h6>Bio Data</h6>
+                    <h6>Contact</h6>
                     <p>
-                        {{request.user.profile.full_name}} <br />
-                        {{request.user.email}} <br />
-                        {{request.user.profile.phone}}
+                        {{vendor.title}} <br />
+                        {{vendor.user.email}} <br />
+                        {{vendor.contact}}
                     </p>
                 </div>
                 <div class="col-sm-6 col-lg-4 col-xl-3">
-                    <h6>Address & Location</h6>
+                    <h6>Address</h5>
                     <p>
-                        Address: {{request.user.profile.address}} <br />
-                        Country: {{request.user.profile.country}} <br />
+                        Address: {{vendor.address}} <br />
                     </p>
                 </div>
             </div>

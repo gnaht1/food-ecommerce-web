@@ -146,23 +146,28 @@ def change_order_status(request, oid):
 
 @admin_required
 def shop_page(request):
-    products = Product.objects.all()
-    revenue = CartOrder.objects.aggregate(price=Sum("price"))
-    total_sales = CartOrderItems.objects.filter(order__paid_status=True).aggregate(
-        qty=Sum("qty")
-    )
+    vendor = Vendor.objects.get(user=request.user)
+    products = Product.objects.filter(vendor=vendor)
+    
+    # Calculate revenue and sales for this vendor only
+    order_items = CartOrderItems.objects.filter(product__in=products, order__paid_status=True)
+    revenue = order_items.aggregate(price=Sum('total'))
+    total_sales = order_items.aggregate(qty=Sum('qty'))
 
     context = {
         "products": products,
         "revenue": revenue,
         "total_sales": total_sales,
+        "vendor": vendor,
     }
     return render(request, "useradmin/shop_page.html", context)
 
 
 @admin_required
 def reviews(request):
-    reviews = ProductReview.objects.all()
+    vendor = Vendor.objects.get(user=request.user)
+    products = Product.objects.filter(vendor=vendor)
+    reviews = ProductReview.objects.filter(product__in=products)
     context = {
         "reviews": reviews,
     }
