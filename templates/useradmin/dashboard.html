@@ -87,7 +87,7 @@
                                 <td>{{l.email}}</td>
                                 <td>{{l.phone}}</td>
                                 <td>{{l.order_date}}</td>
-                                <td>${{l.price}}</td>
+                                <td>${{l.vendor_total|floatformat:2}}</td>
                                 <td>
                                     {% if l.paid_status == True %}
                                     <span class="badge badge-pill badge-soft-success">Paid</span>
@@ -96,7 +96,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <a href="" class="btn btn-xs"> View details</a>
+                                    <a href="{% url 'useradmin:order_detail' l.id %}" class="btn btn-xs"> View details</a>
                                 </td>
                             </tr>
                             {% endfor %}

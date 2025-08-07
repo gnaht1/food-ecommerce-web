@@ -18,23 +18,33 @@ import datetime
 
 @admin_required
 def dashboard(request):
-    revenue = CartOrder.objects.aggregate(price=Sum("price"))
-    total_orders_count = CartOrder.objects.all()
-    all_products = Product.objects.all()
-    all_categories = Category.objects.all()
-    new_customers = User.objects.all().order_by("-id")[:6]
-    latest_orders = CartOrder.objects.all()
-
+    vendor = Vendor.objects.get(user=request.user)
+    
+    products = Product.objects.filter(vendor=vendor)
+    order_items = CartOrderItems.objects.filter(product__in=products, order__paid_status=True)
+    
+    revenue = order_items.aggregate(price=Sum('total'))
+    
     this_month = datetime.datetime.now().month
-    monthly_revenue = CartOrder.objects.filter(order_date__month=this_month).aggregate(
-        price=Sum("price")
-    )
+    monthly_order_items = order_items.filter(order__order_date__month=this_month)
+    monthly_revenue = monthly_order_items.aggregate(price=Sum('total'))
+    
+    latest_orders_query = CartOrder.objects.filter(cartorderitems__product__vendor=vendor).distinct().order_by("-id")
+    
+    for order in latest_orders_query:
+        vendor_items = order.cartorderitems_set.filter(product__vendor=vendor)
+        order.vendor_total = vendor_items.aggregate(total=Sum('total'))['total'] or 0
 
-    # Save analytics to database
+    # Get users who have ordered from this vendor, and show the most recently registered ones.
+    new_customers = User.objects.filter(cartorder__in=latest_orders_query).distinct().order_by("-id")[:6]
+    
+    all_categories = Category.objects.all()
+
+    # Save analytics to database - now with vendor-specific data
     analytics = DashboardAnalytics(
         revenue=revenue["price"] if revenue["price"] is not None else Decimal("0.00"),
-        orders_count=total_orders_count.count(),
-        products_count=all_products.count() if all_products else 0,
+        orders_count=latest_orders_query.count(),
+        products_count=products.count(),
         monthly_earning=monthly_revenue["price"]
         if monthly_revenue["price"] is not None
         else Decimal("0.00"),
@@ -44,11 +54,11 @@ def dashboard(request):
     context = {
         "monthly_revenue": monthly_revenue,
         "revenue": revenue,
-        "all_products": all_products,
+        "all_products": products,
         "all_categories": all_categories,
         "new_customers": new_customers,
-        "latest_orders": latest_orders,
-        "total_orders_count": total_orders_count,
+        "latest_orders": latest_orders_query,
+        "total_orders_count": latest_orders_query,
     }
     return render(request, "useradmin/dashboard.html", context)
 
