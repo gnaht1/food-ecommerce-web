@@ -6,7 +6,7 @@ from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from decimal import Decimal
 
-from core.models import CartOrder, CartOrderItems, Product, Category, ProductReview
+from core.models import CartOrder, CartOrderItems, Product, Category, ProductReview, Vendor
 from core.models import CartOrderItems
 from userauths.models import Profile, User
 from useradmin.forms import AddProductForm
@@ -55,12 +55,11 @@ def dashboard(request):
 
 @admin_required
 def products(request):
-    all_products = Product.objects.all().order_by("-id")
-    all_categories = Category.objects.all()
+    vendor = Vendor.objects.get(user=request.user)
+    products = Product.objects.filter(vendor=vendor).order_by("-id")
 
     context = {
-        "all_products": all_products,
-        "all_categories": all_categories,
+        "products": products,
     }
     return render(request, "useradmin/products.html", context)
 
@@ -72,6 +71,7 @@ def add_product(request):
         if form.is_valid():
             new_form = form.save(commit=False)
             new_form.user = request.user
+            new_form.vendor = Vendor.objects.get(user=request.user)
             new_form.save()
             form.save_m2m()
             return redirect("useradmin:products")
@@ -89,6 +89,7 @@ def edit_product(request, pid):
         if form.is_valid():
             new_form = form.save(commit=False)
             new_form.user = request.user
+            new_form.vendor = Vendor.objects.get(user=request.user)
             new_form.save()
             form.save_m2m()
             return redirect("useradmin:edit_product", product.pid)
