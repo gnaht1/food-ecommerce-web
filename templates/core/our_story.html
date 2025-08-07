@@ -1,0 +1,54 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block content %}
+<main class="main pages">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'core:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Our Story
+            </div>
+        </div>
+    </div>
+    <div class="page-content pt-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-10 col-lg-12 m-auto">
+                    <section class="row align-items-center mb-50">
+                        <div class="col-lg-6">
+                            <img src="{% static 'assets/imgs/page/about-1.png' %}" alt="" class="border-radius-15 mb-md-3 mb-lg-0 mb-sm-4" />
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="pl-25">
+                                <h2 class="mb-30">Welcome to our Food Ecommerce</h2>
+                                <p class="mb-25">At our store, we are passionate about providing the freshest and highest-quality raw ingredients for your culinary adventures. We believe that great meals start with great ingredients, and we are dedicated to sourcing the best products for our customers.</p>
+                                <p class="mb-50">We also embrace technology to enhance your cooking experience. Our innovative AI chatbot is here to help you discover new recipes, recommend ingredients, and make your shopping experience seamless and enjoyable.</p>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="text-center mb-50">
+                        <h2 class="title style-3 mb-40">Our Team</h2>
+                        <div class="row">
+                            <div class="col-lg-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                <h6 class="mb-5 text-brand">Founder</h6>
+                                <h4 class="mb-10">Nguyen Phan Huynh Thang</h4>
+                                <p class="mb-10">Passionate foodie and entrepreneur.</p>
+                            </div>
+                            <div class="col-lg-4 mb-lg-0 mb-md-5 mb-sm-5">
+                                <h6 class="mb-5 text-brand">AI Specialist</h6>
+                                <h4 class="mb-10">Nguyen Phan Huynh Thang</h4>
+                                <p class="mb-10">Expert in AI and machine learning.</p>
+                            </div>
+                            <div class="col-lg-4">
+                                <h6 class="mb-5 text-brand">Head Chef</h6>
+                                <h4 class="mb-10">Tran Nguyen Duy Thien</h4>
+                                <p class="mb-10">Loves to create and share recipes.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

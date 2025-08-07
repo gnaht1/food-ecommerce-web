@@ -37,6 +37,7 @@ from core.views import (
     purchase_guide,
     privacy_policy,
     terms_of_service,
+    our_story,
 )
 
 app_name = "core"
@@ -95,6 +96,7 @@ urlpatterns = [
     path("contact/", contact, name="contact"),
     path("ajax-contact-form/", ajax_contact_form, name="ajax-contact-form"),
     path("about_us/", about_us, name="about_us"),
+    path("our_story/", our_story, name="our_story"),
     path("purchase_guide/", purchase_guide, name="purchase_guide"),
     path("privacy_policy/", privacy_policy, name="privacy_policy"),
     path("terms_of_service/", terms_of_service, name="terms_of_service"),

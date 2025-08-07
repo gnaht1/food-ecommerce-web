@@ -834,6 +834,9 @@ def ajax_contact_form(request):
 def about_us(request):
     return render(request, "core/about_us.html")
 
+def our_story(request):
+    return render(request, "core/our_story.html")
+
 
 def purchase_guide(request):
     return render(request, "core/purchase_guide.html")
