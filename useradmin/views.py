@@ -108,8 +108,10 @@ def delete_product(request, pid):
     return redirect("useradmin:products")
 
 
+@admin_required
 def orders(request):
-    orders = CartOrder.objects.all()
+    vendor = Vendor.objects.get(user=request.user)
+    orders = CartOrder.objects.filter(cartorderitems__product__vendor=vendor).distinct().order_by("-id")
 
     context = {
         "orders": orders,
@@ -119,7 +121,9 @@ def orders(request):
 
 def order_detail(request, id):
     order = CartOrder.objects.get(id=id)
-    order_items = CartOrderItems.objects.filter(order=order)
+    vendor = Vendor.objects.get(user=request.user)
+    products = Product.objects.filter(vendor=vendor)
+    order_items = CartOrderItems.objects.filter(order=order, product__in=products)
     context = {
         "order": order,
         "order_items": order_items,
