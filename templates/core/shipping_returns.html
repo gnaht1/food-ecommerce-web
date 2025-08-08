@@ -1,0 +1,53 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+<main class="main pages">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'core:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Pages <span></span> Shipping & Returns
+            </div>
+        </div>
+    </div>
+    <div class="page-content pt-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-10 col-lg-12 m-auto">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="single-page pr-30 mb-lg-0 mb-sm-5">
+                                <div class="single-header style-2">
+                                    <h2>Shipping & Returns</h2>
+                                </div>
+                                <div class="single-content">
+                                    <h4>Shipping Policy</h4>
+                                    <p>We are committed to delivering your fresh ingredients promptly. We offer the following shipping options:</p>
+                                    <ul>
+                                        <li><strong>Standard Shipping:</strong> 2-3 business days.</li>
+                                        <li><strong>Express Shipping:</strong> Next business day delivery.</li>
+                                        <li><strong>Scheduled Delivery:</strong> Choose a specific date and time for your delivery.</li>
+                                    </ul>
+                                    <p>Shipping costs are calculated at checkout based on your location and the selected shipping method. We currently ship to all locations within the city limits.</p>
+                                    
+                                    <hr class="my-4">
+
+                                    <h4>Returns Policy</h4>
+                                    <p>Your satisfaction is our priority. If you are not completely satisfied with the quality of our ingredients, please contact us within 24 hours of receiving your order.</p>
+                                    <p>We offer the following solutions for returns:</p>
+                                    <ul>
+                                        <li><strong>Full Refund:</strong> If the ingredients are spoiled or not as described, we will issue a full refund to your original payment method.</li>
+                                        <li><strong>Store Credit:</strong> You can opt for store credit to use on your next purchase.</li>
+                                        <li><strong>Replacement:</strong> We can send a replacement for the unsatisfactory items with your next order.</li>
+                                    </ul>
+                                    <p>To initiate a return, please contact our customer support team with your order number and a description of the issue. We may request a photo of the product to help us improve our services.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

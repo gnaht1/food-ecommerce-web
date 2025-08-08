@@ -850,6 +850,9 @@ def privacy_policy(request):
 def terms_of_service(request):
     return render(request, "core/terms_of_service.html")
 
+def shipping_returns(request):
+    return render(request, "core/shipping_returns.html")
+
 def faqs(request):
     return render(request, "core/faqs.html")
 
