@@ -38,6 +38,7 @@ from core.views import (
     privacy_policy,
     terms_of_service,
     our_story,
+    faqs,
 )
 
 app_name = "core"
@@ -100,6 +101,7 @@ urlpatterns = [
     path("purchase_guide/", purchase_guide, name="purchase_guide"),
     path("privacy_policy/", privacy_policy, name="privacy_policy"),
     path("terms_of_service/", terms_of_service, name="terms_of_service"),
+    path("faqs/", faqs, name="faqs"),
     # New routes
     path("save_checkout_info/", views.save_checkout_info, name="save_checkout_info"),
     path(

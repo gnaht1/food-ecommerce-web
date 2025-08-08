@@ -1,0 +1,95 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+<main class="main pages">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'core:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Pages <span></span> FAQs
+            </div>
+        </div>
+    </div>
+    <div class="page-content pt-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-10 col-lg-12 m-auto">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="single-page pr-30 mb-lg-0 mb-sm-5">
+                                <div class="single-header style-2">
+                                    <h2>Frequently Asked Questions</h2>
+                                </div>
+                                <div class="single-content">
+                                    <div class="accordion" id="faq-accordion">
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingOne">
+                                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                                    What is this website for?
+                                                </button>
+                                            </h2>
+                                            <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faq-accordion">
+                                                <div class="accordion-body">
+                                                    Our website provides high-quality raw ingredients for people who are new to cooking. We aim to simplify the cooking process by offering fresh, pre-portioned ingredients and an AI-powered chatbot to guide you through every step of your culinary journey.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingTwo">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                                    How does the AI chatbot work?
+                                                </button>
+                                            </h2>
+                                            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faq-accordion">
+                                                <div class="accordion-body">
+                                                    Our AI chatbot is designed to be your personal cooking assistant. You can ask it for recipes, cooking instructions, ingredient substitutions, and even tips on kitchen techniques. Just type your question in the chat window, and our AI will provide you with an instant, helpful response.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingThree">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                                    Are the ingredients fresh?
+                                                </button>
+                                            </h2>
+                                            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faq-accordion">
+                                                <div class="accordion-body">
+                                                    Absolutely! We partner with trusted local suppliers to ensure that all our ingredients are fresh and of the highest quality. We are committed to providing you with the best possible ingredients for your meals.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingFour">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                                    What are the delivery options?
+                                                </button>
+                                            </h2>
+                                            <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faq-accordion">
+                                                <div class="accordion-body">
+                                                    We offer several delivery options to suit your needs. You can choose standard delivery, which typically takes 2-3 business days, or opt for express delivery for a small additional fee to receive your ingredients within 24 hours. We also offer scheduled deliveries so you can plan your cooking in advance.
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2 class="accordion-header" id="headingFive">
+                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                                    What if I have dietary restrictions?
+                                                </button>
+                                            </h2>
+                                            <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="headingFive" data-bs-parent="#faq-accordion">
+                                                <div class="accordion-body">
+                                                    We understand that dietary needs vary. While we offer a wide range of ingredients, you can also use our AI chatbot to find suitable substitutions for any recipe. If you have specific allergies or dietary concerns, please contact our support team, and we'll do our best to accommodate your needs.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}
