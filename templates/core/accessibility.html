@@ -1,0 +1,57 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+<main class="main pages">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'core:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> Pages <span></span> Accessibility
+            </div>
+        </div>
+    </div>
+    <div class="page-content pt-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-xl-10 col-lg-12 m-auto">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="single-page pr-30 mb-lg-0 mb-sm-5">
+                                <div class="single-header style-2">
+                                    <h2>Accessibility Statement</h2>
+                                </div>
+                                <div class="single-content">
+                                    <p>We are committed to ensuring that our website is accessible to everyone, including people with disabilities. We are continually improving the user experience for everyone and applying the relevant accessibility standards.</p>
+                                    
+                                    <h4>Conformance Status</h4>
+                                    <p>The Web Content Accessibility Guidelines (WCAG) defines requirements for designers and developers to improve accessibility for people with disabilities. It defines three levels of conformance: Level A, Level AA, and Level AAA. Our website is partially conformant with WCAG 2.1 level AA. Partially conformant means that some parts of the content do not fully conform to the accessibility standard.</p>
+                                    
+                                    <h4>Feedback</h4>
+                                    <p>We welcome your feedback on the accessibility of our website. Please let us know if you encounter accessibility barriers on our website:</p>
+                                    <ul>
+                                        <li><strong>Phone:</strong> 0123823123</li>
+                                        <li><strong>E-mail:</strong> <span class="text-brand fw-bold">umldoomsday@gmail.com</span></li>
+                                        <li><strong>Address:</strong> Thu Duc, HCM</span></li>
+                                    </ul>
+
+                                    <h4>Technical Specifications</h4>
+                                    <p>Accessibility of our website relies on the following technologies to work with the particular combination of web browser and any assistive technologies or plugins installed on your computer:</p>
+                                    <ul>
+                                        <li>HTML</li>
+                                        <li>WAI-ARIA</li>
+                                        <li>CSS</li>
+                                        <li>JavaScript</li>
+                                    </ul>
+                                    
+                                    <h4>Limitations and Alternatives</h4>
+                                    <p>Despite our best efforts to ensure accessibility of our website, there may be some limitations. Please contact us if you observe an issue.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

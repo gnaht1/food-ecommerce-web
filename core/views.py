@@ -853,6 +853,9 @@ def terms_of_service(request):
 def shipping_returns(request):
     return render(request, "core/shipping_returns.html")
 
+def accessibility(request):
+    return render(request, "core/accessibility.html")
+
 def faqs(request):
     return render(request, "core/faqs.html")
 
