@@ -422,7 +422,7 @@
                             >
                           </li> {% endcomment %}
                           <li>
-                            <a href="#"
+                            <a href="{% url 'core:dashboard' %}#vouchers"
                               ><i class="fi fi-rs-label mr-10"></i>My Voucher</a
                             >
                           </li>
@@ -1322,10 +1322,12 @@
         <script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
         <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
         <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
         <!-- Template  JS -->
         <script src="{% static 'assets/js/main.js' %}"></script>
         <script src="{% static 'assets/js/shop.js' %}"></script>
         <script src="{% static 'assets/js/function.js' %}"></script>
+        {% block scripts %}{% endblock scripts %}
         {% include 'partials/chatbot_widget.html' %}
       </body>
     </html>

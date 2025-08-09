@@ -37,6 +37,9 @@
                                             <a class="nav-link" id="account-detail-tab" data-bs-toggle="tab" href="#account-detail" role="tab" aria-controls="account-detail" aria-selected="true"><i class="fi-rs-user mr-10"></i>Change Password</a>
                                         </li>
                                         <li class="nav-item">
+                                            <a class="nav-link" id="vouchers-tab" data-bs-toggle="tab" href="#vouchers" role="tab" aria-controls="vouchers" aria-selected="false"><i class="fi-rs-ticket mr-10"></i>My Vouchers</a>
+                                        </li>
+                                        <li class="nav-item">
                                             <a class="nav-link" href="{% url 'userauths:sign-out' %}"><i class="fi-rs-sign-out mr-10"></i>Logout</a>
                                         </li>
                                     </ul>
@@ -83,7 +86,7 @@
                                                 <p>{{  total_orders  }}</p>
                                             </div> {% endcomment %}
                                             <div>
-                                                <canvas style="height: 50px;" id="myChart"></canvas>
+                                                <canvas style="height: 50px;" id="profileChart"></canvas>
                                             </div>
 
 
@@ -106,7 +109,7 @@
                                                 <p>{{  total_orders  }}</p>
                                             </div> {% endcomment %}
                                             <div>
-                                                <canvas style="height: 50px;" id="myChart"></canvas>
+                                                <canvas style="height: 50px;" id="dashboardChart"></canvas>
                                             </div>
 
 
@@ -258,6 +261,47 @@
                                             </div>
                                         </div>
                                     </div>
+                                    <div class="tab-pane fade" id="vouchers" role="tabpanel" aria-labelledby="vouchers-tab">
+                                        <div class="card">
+                                            <div class="card-header">
+                                                <h3 class="mb-0">Your Vouchers</h3>
+                                            </div>
+                                            <div class="card-body">
+                                                <div class="table-responsive">
+                                                    <table class="table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Code</th>
+                                                                <th>Discount</th>
+                                                                <th>Expires</th>
+                                                                <th>Copy</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <tr>
+                                                                <td>SUMMER25</td>
+                                                                <td>25% off</td>
+                                                                <td>2030-08-31</td>
+                                                                <td><button class="btn btn-sm btn-outline-primary copy-btn" data-clipboard-text="SUMMER25">Copy</button></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>NEW40</td>
+                                                                <td>40% off for new users</td>
+                                                                <td>2030-09-30</td>
+                                                                <td><button class="btn btn-sm btn-outline-primary copy-btn" data-clipboard-text="NEW40">Copy</button></td>
+                                                            </tr>
+                                                            <tr>
+                                                                <td>FREESHIP</td>
+                                                                <td>Free shipping</td>
+                                                                <td>-</td>
+                                                                <td><button class="btn btn-sm btn-outline-primary copy-btn" data-clipboard-text="FREESHIP">Copy</button></td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -270,28 +314,183 @@
 
 
 
-    <script>
-        const labels = {{ month |safe }}
-      
-        const data = {
-          labels: labels,
-          datasets: [{
-            label: 'Orders',
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
-            data: {{ total_orders|safe }}
-          }]
-        };
-      
-        const config = {
-          type: 'line',
-          data: data,
-          options: {}
-        };
+    {% endblock content %}
 
-        const myChart = new Chart(
-                document.getElementById('myChart'),
-                config
-              );
-      </script>
-{% endblock content %}
+{% block scripts %}
+    <!-- Include Chart.js library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include ClipboardJS library -->
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
+    
+    <script>
+        // Check if Chart.js and ClipboardJS are loaded
+        console.log('Chart.js loaded:', typeof Chart !== 'undefined');
+        console.log('ClipboardJS loaded:', typeof ClipboardJS !== 'undefined');
+
+        // Only initialize charts if data exists and Chart.js is loaded
+        if (typeof Chart !== 'undefined') {
+            const labels = {{ month |safe }};
+          
+            const data = {
+              labels: labels,
+              datasets: [{
+                label: 'Orders',
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+                data: {{ total_orders|safe }}
+              }]
+            };
+          
+            const config = {
+              type: 'line',
+              data: data,
+              options: {}
+            };
+
+            // Initialize charts if canvas elements exist
+            const profileChart = document.getElementById('profileChart');
+            if (profileChart) {
+                new Chart(profileChart, config);
+            }
+
+            const dashboardChart = document.getElementById('dashboardChart');
+            if (dashboardChart) {
+                new Chart(dashboardChart, config);
+            }
+        }
+
+        // Initialize clipboard functionality
+        if (typeof ClipboardJS !== 'undefined') {
+            var clipboard = new ClipboardJS('.copy-btn');
+
+            clipboard.on('success', function(e) {
+                console.log('Copy successful:', e.text);
+                var originalText = e.trigger.textContent;
+                var originalClass = e.trigger.className;
+                
+                // Update button appearance
+                e.trigger.textContent = 'Copied!';
+                e.trigger.className = 'btn btn-sm btn-success';
+                
+                setTimeout(function() {
+                    e.trigger.textContent = originalText;
+                    e.trigger.className = originalClass;
+                }, 2000);
+
+                e.clearSelection();
+            });
+
+            clipboard.on('error', function(e) {
+                console.error('Copy failed:', e.action);
+                console.error('Trigger:', e.trigger);
+                
+                var originalText = e.trigger.textContent;
+                var originalClass = e.trigger.className;
+                
+                // Show error state
+                e.trigger.textContent = 'Failed!';
+                e.trigger.className = 'btn btn-sm btn-danger';
+                
+                setTimeout(function() {
+                    e.trigger.textContent = originalText;
+                    e.trigger.className = originalClass;
+                }, 2000);
+
+                // Fallback: try to copy manually
+                try {
+                    navigator.clipboard.writeText(e.trigger.getAttribute('data-clipboard-text')).then(function() {
+                        console.log('Fallback copy successful');
+                        e.trigger.textContent = 'Copied!';
+                        e.trigger.className = 'btn btn-sm btn-success';
+                        
+                        setTimeout(function() {
+                            e.trigger.textContent = originalText;
+                            e.trigger.className = originalClass;
+                        }, 2000);
+                    });
+                } catch (err) {
+                    console.error('Fallback copy also failed:', err);
+                }
+            });
+
+            console.log('ClipboardJS initialized successfully');
+        } else {
+            console.error('ClipboardJS not loaded, using fallback');
+            
+            // Fallback for browsers that don't support ClipboardJS
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('copy-btn')) {
+                    const textToCopy = e.target.getAttribute('data-clipboard-text');
+                    
+                    if (navigator.clipboard) {
+                        navigator.clipboard.writeText(textToCopy).then(function() {
+                            const originalText = e.target.textContent;
+                            const originalClass = e.target.className;
+                            
+                            e.target.textContent = 'Copied!';
+                            e.target.className = 'btn btn-sm btn-success';
+                            
+                            setTimeout(function() {
+                                e.target.textContent = originalText;
+                                e.target.className = originalClass;
+                            }, 2000);
+                        }).catch(function(err) {
+                            console.error('Clipboard API failed:', err);
+                            alert('Copy failed. Please copy manually: ' + textToCopy);
+                        });
+                    } else {
+                        // Very old browser fallback
+                        const textArea = document.createElement('textarea');
+                        textArea.value = textToCopy;
+                        document.body.appendChild(textArea);
+                        textArea.select();
+                        try {
+                            document.execCommand('copy');
+                            const originalText = e.target.textContent;
+                            const originalClass = e.target.className;
+                            
+                            e.target.textContent = 'Copied!';
+                            e.target.className = 'btn btn-sm btn-success';
+                            
+                            setTimeout(function() {
+                                e.target.textContent = originalText;
+                                e.target.className = originalClass;
+                            }, 2000);
+                        } catch (err) {
+                            alert('Copy failed. Please copy manually: ' + textToCopy);
+                        }
+                        document.body.removeChild(textArea);
+                    }
+                }
+            });
+        }
+
+        // Handle URL hash navigation for direct links to tabs
+        function switchToTabFromHash() {
+            const hash = window.location.hash;
+            if (hash) {
+                const tabId = hash.substring(1); // Remove the '#' character
+                const tabLink = document.querySelector(`#${tabId}-tab`);
+                const tabPane = document.querySelector(`#${tabId}`);
+                
+                if (tabLink && tabPane) {
+                    // Remove active class from all tabs and panes
+                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('active', 'show');
+                    });
+                    
+                    // Add active class to target tab and pane
+                    tabLink.classList.add('active');
+                    tabPane.classList.add('active', 'show');
+                }
+            }
+        } 
+
+        // Run on page load
+        switchToTabFromHash();
+
+        // Run when hash changes (if user clicks browser back/forward)
+        window.addEventListener('hashchange', switchToTabFromHash);
+    </script>
+{% endblock scripts %}
