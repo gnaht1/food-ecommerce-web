@@ -773,38 +773,53 @@ def wishlist_view(request):
     return render(request, "core/wishlist.html", context)
 
 
+@login_required
 def add_to_wishlist(request):
     product_id = request.GET["id"]
     product = Product.objects.get(id=product_id)
 
-    context = {}
-
-    wishlist_count = Wishlist.objects.filter(product=product, user=request.user).count()
-    print(wishlist_count)
-
-    if wishlist_count > 0:
-        context = {"bool": True}
+    # Check if the product is already in the wishlist
+    if Wishlist.objects.filter(product=product, user=request.user).exists():
+        # If it exists, do nothing or you could remove it (toggle behavior)
+        # For now, we just confirm it's there.
+        pass
     else:
-        new_wishlist = Wishlist.objects.create(
+        # If it doesn't exist, create it
+        Wishlist.objects.create(
             user=request.user,
             product=product,
         )
-        context = {"bool": True}
+
+    # Get the updated count of wishlist items for the user
+    wishlist_count = Wishlist.objects.filter(user=request.user).count()
+
+    context = {
+        "bool": True,
+        "wishlist_count": wishlist_count,
+    }
 
     return JsonResponse(context)
 
 
+@login_required
 def remove_wishlist(request):
-    pid = request.GET["id"]
+    wishlist_id = request.GET.get("id")
+    try:
+        # Ensure the user can only delete their own wishlist items
+        wishlist_item = Wishlist.objects.get(id=wishlist_id, user=request.user)
+        wishlist_item.delete()
+    except Wishlist.DoesNotExist:
+        # Handle case where item is not found or doesn't belong to the user
+        return JsonResponse({"error": "Wishlist item not found."}, status=404)
+
+    # Get the updated list and count
     wishlist_items = Wishlist.objects.filter(user=request.user)
-    wishlist_d = Wishlist.objects.get(id=pid)
-    delete_product = wishlist_d.delete()
+    wishlist_count = wishlist_items.count()
 
-    context = {"bool": True, "w": wishlist_items}
+    # Render the updated wishlist HTML
+    t = render_to_string("core/async/wishlist-list.html", {"wishlist": wishlist_items})
 
-    wishlist_json = serializers.serialize("json", wishlist_items)
-    t = render_to_string("core/async/wishlist-list.html", context)
-    return JsonResponse({"data": t, "w": wishlist_json})
+    return JsonResponse({"data": t, "wishlist_count": wishlist_count})
 
 
 # Other Pages

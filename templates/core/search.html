@@ -31,7 +31,7 @@
                                     </a>
                                 </div>
                                 <div class="product-action-1">
-                                    <a aria-label="Add To Wishlist" class="action-btn" href="javascript:void(0)" data-product-item="{{ p.id }}"><i class="fi-rs-heart"></i></a>
+                                    <a aria-label="Add To Wishlist" class="action-btn add-to-wishlist" href="javascript:void(0)" data-product-item="{{ p.id }}"><i class="fi-rs-heart"></i></a>
                                 </div>
                             </div>
                             <div class="product-content-wrap">
@@ -82,68 +82,5 @@
         </div>
     </div>
 </main>
-
-<!-- JavaScript để xử lý add to cart -->
-<script>
-$(document).ready(function(){
-    // Add to cart functionality
-    $(".add-to-cart-btn").on("click", function(){
-        let this_val = $(this);
-        let index = this_val.attr("data-index");
-        
-        let quantity = $(".product-quantity-" + index).val();
-        let product_title = $(".product-title-" + index).val();
-        let product_id = $(".product-id-" + index).val();
-        let product_price = $(".product-price-" + index).val();
-        let product_pid = $(".product-pid-" + index).val();
-        let product_image = $(".product-image-" + index).val();
-        
-        console.log("Adding product to cart:", {
-            id: product_id,
-            title: product_title,
-            price: product_price,
-            pid: product_pid,
-            image: product_image,
-            qty: quantity
-        });
-        
-        $.ajax({
-            url: '/add-to-cart/',
-            type: 'GET',
-            data: {
-                'id': product_id,
-                'pid': product_pid,
-                'image': product_image,
-                'qty': quantity,
-                'title': product_title,
-                'price': product_price,
-            },
-            dataType: 'json',
-            beforeSend: function(){
-                this_val.html("Adding...");
-            },
-            success: function(response){
-                console.log("Success:", response);
-                this_val.html("✓ Added");
-                if(response.totalcartitems) {
-                    $(".cart-items-count").text(response.totalcartitems);
-                }
-                
-                setTimeout(function(){
-                    this_val.html('<i class="fi-rs-shopping-cart mr-5"></i>Add');
-                }, 2000);
-            },
-            error: function(xhr, status, error){
-                console.error("AJAX Error:", error);
-                console.error("Response:", xhr.responseText);
-                this_val.html("Error");
-                setTimeout(function(){
-                    this_val.html('<i class="fi-rs-shopping-cart mr-5"></i>Add');
-                }, 2000);
-            }
-        });
-    });
-});
-</script>
 
 {% endblock content %}
