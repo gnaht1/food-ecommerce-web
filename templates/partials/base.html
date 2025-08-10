@@ -27,7 +27,7 @@
 
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
  
     </head>
@@ -223,7 +223,7 @@
               <div class="col-xl-3 col-lg-4">
                 <div class="header-info">
                   <ul>
-                    <li><a href="page-about.html">About Us</a></li>
+                    <li><a href="{% url 'core:our_story' %}">About Us</a></li>
                     <li><a href="{% url 'core:dashboard' %}">My Account</a></li>
                     <li><a href="{% url 'core:wishlist' %}">Wishlist</a></li>
                     {% comment %} <li><a href="shop-order.html">Order Tracking</a></li> {% endcomment %}
@@ -914,11 +914,11 @@
                   <li class="menu-item-has-children">
                     <a href="#">Pages</a>
                     <ul class="dropdown">
-                      <li><a href="page-about.html">About Us</a></li>
-                      <li><a href="page-contact.html">Contact</a></li>
-                      <li><a href="page-account.html">My Account</a></li>
-                      <li><a href="page-login.html">Login</a></li>
-                      <li><a href="page-register.html">Register</a></li>
+                      <li><a href="{% url 'core:our_story' %}">About Us</a></li>
+                      <li><a href="{% url 'core:contact' %}">Contact</a></li>
+                      <li><a href="{% url 'core:dashboard' %}">My Account</a></li>
+                      <li><a href="{% url 'userauths:sign-in' %}">Login</a></li>
+                      <li><a href="{% url 'userauths:sign-up' %}">Register</a></li>
                       <li>
                         <a href="page-forgot-password.html"
                           >Forgot password</a
@@ -928,12 +928,12 @@
                         <a href="page-reset-password.html">Reset password</a>
                       </li>
                       <li>
-                        <a href="page-purchase-guide.html">Purchase Guide</a>
+                        <a href="{% url 'core:purchase_guide' %}">Purchase Guide</a>
                       </li>
                       <li>
-                        <a href="page-privacy-policy.html">Privacy Policy</a>
+                        <a href="{% url 'core:privacy_policy' %}">Privacy Policy</a>
                       </li>
-                      <li><a href="page-terms.html">Terms of Service</a></li>
+                      <li><a href="{% url 'core:terms_of_service' %}">Terms of Service</a></li>
                       <li><a href="page-404.html">404 Page</a></li>
                     </ul>
                   </li>
