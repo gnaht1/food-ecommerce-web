@@ -875,6 +875,26 @@ def faqs(request):
     return render(request, "core/faqs.html")
 
 
+def news_view(request):
+    return render(request, "core/news.html")
+
+
+def fried_chicken_view(request):
+    return render(request, "core/articles/fried_chicken.html")
+
+
+def ina_garten_ribs_view(request):
+    return render(request, "core/articles/ina_garten_ribs.html")
+
+
+def best_cheese_view(request):
+    return render(request, "core/articles/best_cheese.html")
+
+
+def costco_spices_view(request):
+    return render(request, "core/articles/costco_spices.html")
+
+
 @login_required
 def checkout_initiate(request):
     """Create order from cart and redirect to checkout page"""

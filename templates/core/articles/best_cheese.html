@@ -1,0 +1,47 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block content %}
+<main class="main pages">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'core:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span><a href="{% url 'core:news' %}">News</a>
+                <span></span> This Cheese Was Just Named the Best in the US — and Cider Is the Key
+            </div>
+        </div>
+    </div>
+    <div class="page-content pt-50 pb-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-10 m-auto">
+                    <div class="single-post-container">
+                        <div class="single-post-header">
+                            <h1 class="mb-30">This Cheese Was Just Named the Best in the US — and Cider Is the Key</h1>
+                            <div class="post-meta mb-30">
+                                <a class="meta-date">August 8, 2025</a>
+                            </div>
+                        </div>
+                        <figure class="single-post-media mb-30">
+                            <img src="/media/articles/This-Cheese-Was-Just-Named-the-Best-in-the-US.webp" alt="Best Cheese in the US">
+                        </figure>
+                        <div class="single-post-content">
+                            <p>For American dairy aficionados, the American Cheese Society Annual Judging & Competition is like the Academy Awards of cheese, where top-notch curds from across the Americas are carefully evaluated by industry professionals and scored based on their technical merit and aesthetics. From the 1,500 entries that recently competed in Sacramento, California, cheeses and other dairy products were given first, second, and third place distinctions in dozens of specific categories, and top performers in each category were ranked in a final tasting to determine the Best of Show.</p>
+                            <p>For the second year in a row, a Canadian cheese placed first in the highly anticipated Best of Show distinction. Quebec-based creamery Fromagerie la Station won with its Alfred le Fermier, an aged, raw-milk, farmstead cheese. Third place also went to a Canadian cheesemaker, Ontario’s Stonetown Artisan Cheese, for its washed-rind, Alpine-style Grand Trunk.</p>
+                            <p>Second place was given to Withersbrook Blue, which was crafted by Vermont’s Jasper Hill Farm, making it the best cheese in the United States right now. Withersbrook Blue is a raw-milk blue cheese that is soaked in Eden Ice Cider and sealed during part of its aging process, giving the cheese a strong fruity undertone along with grassy and sweet cream notes. </p>
+                            <p>“The anaerobic ripening produces some really fruity, boozy notes, even if we just sealed it up with nothing at all,” explains Zoe Brickley, director of communications for Jasper Hill Farm, “but that cider just really synergizes with it.”</p>
+                            <p>Withersbrook Blue was developed in order to use up milk supply and create a seasonal cheese that could be released around the holidays without requiring plank space in the aging cellar. It’s also a natural progression of Jasper Hill’s sense-of-place ethos. </p>
+                            <p>According to Mateo Kehler, the farm’s co-founder and CEO, “We're looking at creating place-based cheeses, and apples are obviously an important part of heritage and the landscape here. Eden Ice Cider specifically is just an awesome company that's right up the road from us, and their product is just pure Vermont.”</p>
+                            <p>Along with Withersbrook Blue — which was awarded first place in its specific category of “cheeses with flavor added” — two other Jasper Hill blue cheeses won first place category distinctions and were named among the top 10 cheeses in the competition: the farm’s renowned Bayley Hazen Blue (which received top marks at the World Cheese Awards in 2024) and Barnstorm Blue, a square, washed-rind blue cheese that was developed in partnership with Murray’s Cheese in New York. </p>
+                            <p>“It was a clean sweep for our raw-milk blue cheeses,” Kehler details. Bayley Hazen happens to be the base recipe for both Withersbrook Blue and Barnstorm Blue, prompting Kehler to say, “It’s like the bacon of blue cheese” and “It’s a gateway blue.” </p>
+                            <p>As Brickley points out, the wins are a testament to the evolution of the organization. “Our company culture is better than [it has] ever been,” she says. “I've been at Jasper Hill for 16 years, and the past two years have really shown how focused and tuned-in the team is. There have been growing pains and people coming and going, but I think we finally have a critical mass where we're attracting and retaining talent at a level that we haven't before.”</p>
+                            <p>As for Canada’s tremendous showings in the American Cheese Society’s judging during the past two years, Brickley says that “I think Canada has been making excellent cheese for a really long time, but I think in the last couple years that there's been efforts to organize consolidated exports to be able to enter [the competition]."</p>
+                            <p>“Fromagerie Station is an hour away from us, and they're making world-class cheese with a shared ethic of quality over quantity. There are fewer and fewer raw-milk farms, especially farmstead cheese makers, with the level of sophistication to be able to deliver quality consistently without industrializing and commodifying the product,” the director of communications explains. “We feel like we're on the same team with them.”</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}

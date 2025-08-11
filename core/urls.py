@@ -106,6 +106,11 @@ urlpatterns = [
     path("faqs/", faqs, name="faqs"),
     path("shipping_returns/", shipping_returns, name="shipping_returns"),
     path("accessibility/", accessibility, name="accessibility"),
+    path("news/", views.news_view, name="news"),
+    path("news/fried-chicken/", views.fried_chicken_view, name="fried-chicken"),
+    path("news/ina-garten-ribs/", views.ina_garten_ribs_view, name="ina-garten-ribs"),
+    path("news/best-cheese/", views.best_cheese_view, name="best-cheese"),
+    path("news/costco-spices/", views.costco_spices_view, name="costco-spices"),
     # New routes
     path("save_checkout_info/", views.save_checkout_info, name="save_checkout_info"),
     path(

@@ -1,0 +1,88 @@
+{% extends "partials/base.html" %}
+{% load static %}
+{% block content %}
+<main class="main pages">
+    <div class="page-header breadcrumb-wrap">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="{% url 'core:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                <span></span> News
+            </div>
+        </div>
+    </div>
+    <div class="page-content pt-50">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h1 class="mb-30">Latest Food News</h1>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-9">
+                    <div class="loop-grid">
+                        <div class="row">
+                            <article class="col-lg-6 col-md-6 mb-30 wow fadeIn animated">
+                                <div class="post-card-1 border-radius-10 hover-up">
+                                    <div class="post-thumb thumb-overlay img-hover-slide position-relative" style="background-image: url('/media/articles/Best-Grocery-Store-Fried-Chicken.webp')">
+                                        <a class="img-link" href="{% url 'core:fried-chicken' %}"></a>
+                                    </div>
+                                    <div class="post-content p-30">
+                                        <div class="post-meta mb-20">
+                                            <a class="meta-date">August 10, 2025</a>
+                                        </div>
+                                        <h4 class="post-title mb-20"><a href="{% url 'core:fried-chicken' %}">Fans Say These 5 Grocery Stores Have the Best Fried Chicken</a></h4>
+                                        <p class="post-exerpt font-medium text-muted mb-30">When you're craving the crispy, juicy goodness of fried chicken, the grocery store might not be the first place you think of, but some chains are cooking up some seriously good birds.</p>
+                                    </div>
+                                </div>
+                            </article>
+                            <article class="col-lg-6 col-md-6 mb-30 wow fadeIn animated">
+                                <div class="post-card-1 border-radius-10 hover-up">
+                                    <div class="post-thumb thumb-overlay img-hover-slide position-relative" style="background-image: url('/media/articles/Ina-Gartens-Secret-to-No-Fail-Fall-Apart-Tender-Ribs.webp')">
+                                        <a class="img-link" href="{% url 'core:ina-garten-ribs' %}"></a>
+                                    </div>
+                                    <div class="post-content p-30">
+                                        <div class="post-meta mb-20">
+                                            <a class="meta-date">August 9, 2025</a>
+                                        </div>
+                                        <h4 class="post-title mb-20"><a href="{% url 'core:ina-garten-ribs' %}">Ina Garten's Secret to No-Fail, Fall-Apart-Tender Ribs</a></h4>
+                                        <p class="post-exerpt font-medium text-muted mb-30">Ina Garten, the Barefoot Contessa, has a simple, foolproof method for making delicious, fall-off-the-bone ribs every single time, and it's perfect for your next cookout.</p>
+                                    </div>
+                                </div>
+                            </article>
+                            <article class="col-lg-6 col-md-6 mb-30 wow fadeIn animated">
+                                <div class="post-card-1 border-radius-10 hover-up">
+                                    <div class="post-thumb thumb-overlay img-hover-slide position-relative" style="background-image: url('/media/articles/This-Cheese-Was-Just-Named-the-Best-in-the-US.webp')">
+                                        <a class="img-link" href="{% url 'core:best-cheese' %}"></a>
+                                    </div>
+                                    <div class="post-content p-30">
+                                        <div class="post-meta mb-20">
+                                            <a class="meta-date">August 8, 2025</a>
+                                        </div>
+                                        <h4 class="post-title mb-20"><a href="{% url 'core:best-cheese' %}">This Cheese Was Just Named the Best in the US — and Cider Is the Key</a></h4>
+                                        <p class="post-exerpt font-medium text-muted mb-30">A cheese from Vermont has been crowned the best in the United States, and its unique flavor comes from being washed in cider. Find out more about this award-winning cheese.</p>
+                                    </div>
+                                </div>
+                            </article>
+                            <article class="col-lg-6 col-md-6 mb-30 wow fadeIn animated">
+                                <div class="post-card-1 border-radius-10 hover-up">
+                                    <div class="post-thumb thumb-overlay img-hover-slide position-relative" style="background-image: url('/media/articles/7-Spices-You-Should-Be-Buying-at-Costco-to-Save-Money.webp')">
+                                        <a class="img-link" href="{% url 'core:costco-spices' %}"></a>
+                                    </div>
+                                    <div class="post-content p-30">
+                                        <div class="post-meta mb-20">
+                                            <a class="meta-date">August 7, 2025</a>
+                                        </div>
+                                        <h4 class="post-title mb-20"><a href="{% url 'core:costco-spices' %}">7 Spices You Should Be Buying at Costco to Save Money</a></h4>
+                                        <p class="post-exerpt font-medium text-muted mb-30">Stocking your spice cabinet can be expensive, but Costco offers some great deals on high-quality spices that can save you a lot of money in the long run.</p>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock content %}
