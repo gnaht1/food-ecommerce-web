@@ -253,6 +253,18 @@ def search_view(request):
     return render(request, "core/search.html", context)
 
 
+def search_category_view(request):
+    query = request.GET.get("q")
+    
+    categories = Category.objects.filter(title__icontains=query)
+
+    context = {
+        "categories": categories,
+        "query": query,
+    }
+    return render(request, "core/category-list.html", context)
+
+
 def filter_product(request):
     categories = request.GET.getlist("category[]")
     vendors = request.GET.getlist("vendor[]")
