@@ -16,6 +16,9 @@
           />
         </a>
       </div>
+      <div class="product-badges" style="position: absolute; top: 10px; left: 10px; z-index: 9;">
+        <span class="hot">-{{p.get_percentage|floatformat:0}}%</span>
+      </div>
       <div class="product-action-1">
         <a
           aria-label="Add To Wishlist"
@@ -36,11 +39,6 @@
           data-bs-target="#quickViewModal"
           ><i class="fi-rs-eye"></i
         ></a>
-      </div>
-      <div
-        class="product-badges product-badges-position product-badges-mrg"
-      >
-        <span class="hot">-{{p.get_percentage|floatformat:0}}%</span>
       </div>
     </div>
     <div class="product-content-wrap">

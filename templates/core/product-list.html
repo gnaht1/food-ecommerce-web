@@ -89,7 +89,7 @@
     .product-img img {
         height: 100%;
         width: 100%;
-        object-fit: cover;
+        object-fit: contain;
         transition: transform 0.3s ease;
     }
     
@@ -323,6 +323,11 @@
                                     <a href="{% url 'core:product-detail' p.pid %}">
                                         <img class="default-img" src="{{ p.image.url }}" alt="{{ p.title }}" />
                                     </a>
+                                </div>
+                                <div class="product-badges">
+                                    {% if p.old_price > p.price %}
+                                        <span class="hot">{{ p.get_percentage|floatformat:0 }}%</span>
+                                    {% endif %}
                                 </div>
                                 <div class="product-action-1">
                                     <a aria-label="Add To Wishlist" class="action-btn add-to-wishlist" href="javascript:void(0)" data-product-item="{{ p.id }}"><i class="fi-rs-heart"></i></a>
