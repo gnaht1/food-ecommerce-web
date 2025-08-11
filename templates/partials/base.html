@@ -329,12 +329,12 @@
               <div class="header-right">
                 <div class="search-style-2">
                   <form action="{% url 'core:search' %}" method="GET">
-                    <select class="select-active">
+                    {% comment %} <select class="select-active">
                       <option>All Categories</option>
                       {% for c in categories %}
                       <option value="{{ c.cid }}">{{ c.title }}</option>
                       {% endfor %}
-                    </select>
+                    </select> {% endcomment %}
                     <input type="text" placeholder="Search for items..." name="q" value="{{ request.GET.q }}" />
                     <button type="submit"><i class="fas fa-search"></i></button>
                   </form>

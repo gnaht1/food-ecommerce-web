@@ -135,6 +135,11 @@ def category_product_list_view(request, cid):
 
 def vendor_list_view(request):
     vendors = Vendor.objects.all()
+    
+    q = request.GET.get("q")
+    if q:
+        vendors = vendors.filter(title__icontains=q)
+
     context = {
         "vendors": vendors,
     }
