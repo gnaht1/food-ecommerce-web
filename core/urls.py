@@ -106,6 +106,7 @@ urlpatterns = [
     path("faqs/", faqs, name="faqs"),
     path("shipping_returns/", shipping_returns, name="shipping_returns"),
     path("accessibility/", accessibility, name="accessibility"),
+    path("deals/", views.deals_view, name="deals"),
     path("news/", views.news_view, name="news"),
     path("news/fried-chicken/", views.fried_chicken_view, name="fried-chicken"),
     path("news/ina-garten-ribs/", views.ina_garten_ribs_view, name="ina-garten-ribs"),

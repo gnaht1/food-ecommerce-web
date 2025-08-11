@@ -875,6 +875,14 @@ def faqs(request):
     return render(request, "core/faqs.html")
 
 
+def deals_view(request):
+    products = Product.objects.filter(product_status="published", old_price__gt=models.F('price'))
+    context = {
+        "products": products,
+    }
+    return render(request, "core/deals.html", context)
+
+
 def news_view(request):
     return render(request, "core/news.html")
 
