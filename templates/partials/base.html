@@ -1330,7 +1330,36 @@
         <script src="{% static 'assets/js/main.js' %}"></script>
         <script src="{% static 'assets/js/shop.js' %}"></script>
         <script src="{% static 'assets/js/function.js' %}"></script>
-        {% block scripts %}{% endblock scripts %}
+        {% block scripts %}
+        <script>
+        $(document).ready(function(){
+            $(".form-subcriber").on("submit", function(e){
+                e.preventDefault();
+                var form = $(this);
+                var emailInput = form.find("input[type=email]");
+                var email = emailInput.val();
+                form.parent().find(".alert").remove();
+
+                if(email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    var message = $('<div class="alert alert-success mt-2" style="display: none;">Successfully subscribed!</div>');
+                    form.after(message);
+                    message.fadeIn();
+                    emailInput.val("");
+                    setTimeout(function(){
+                        message.fadeOut(function(){ $(this).remove(); });
+                    }, 3000);
+                } else {
+                    var message = $('<div class="alert alert-danger mt-2" style="display: none;">Please enter a valid email address.</div>');
+                    form.after(message);
+                    message.fadeIn();
+                    setTimeout(function(){
+                        message.fadeOut(function(){ $(this).remove(); });
+                    }, 3000);
+                }
+            });
+        });
+        </script>
+        {% endblock scripts %}
         {% include 'partials/chatbot_widget.html' %}
       </body>
     </html>
