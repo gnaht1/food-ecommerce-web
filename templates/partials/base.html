@@ -433,7 +433,7 @@
                           </li> {% endcomment %}
                           <li>
                             <a href="{% url 'useradmin:dashboard' %}"
-                              ><i class="fi fi-rs-settings-sliders mr-10"></i>Admin(Vendor) Dashboard</a
+                              ><i class="fi fi-rs-settings-sliders mr-10"></i>Vendor Dashboard</a
                             >
                           </li>
                           <li>
@@ -515,7 +515,7 @@
                       </ul>  
                       
                     </div>
-                    <div class="more_slide_open" style="display: none">
+                    {% comment %} <div class="more_slide_open" style="display: none">
                       <div class="d-flex categori-dropdown-inner">
                         <ul>
                           <li>
@@ -558,7 +558,7 @@
                     <div class="more_categories">
                       <span class="icon"></span>
                       <span class="heading-sm-1">Show more...</span>
-                    </div>
+                    </div> {% endcomment %}
                   </div>
                 </div>
                 <div
@@ -972,30 +972,30 @@
             </div>
             <div class="mobile-social-icon mb-50">
               <h6 class="mb-15">Follow Us</h6>
-              <a href="#"
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer"
                 ><img
                   src="{% static 'assets/imgs/theme/icons/icon-facebook-white.svg' %}"
-                  alt=""
+                  alt="Follow us on Facebook"
               /></a>
-              <a href="#"
+              <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
                 ><img
                   src="{% static 'assets/imgs/theme/icons/icon-twitter-white.svg' %}"
-                  alt=""
+                  alt="Follow us on Twitter"
               /></a>
-              <a href="#"
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
                 ><img
                   src="{% static 'assets/imgs/theme/icons/icon-instagram-white.svg' %}"
-                  alt=""
+                  alt="Follow us on Instagram"
               /></a>
-              <a href="#"
+              <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer"
                 ><img
                   src="{% static 'assets/imgs/theme/icons/icon-pinterest-white.svg' %}"
-                  alt=""
+                  alt="Follow us on Pinterest"
               /></a>
-              <a href="#"
+              <a href="https://youtube.com" target="_blank" rel="noopener noreferrer"
                 ><img
                   src="{% static 'assets/imgs/theme/icons/icon-youtube-white.svg' %}"
-                  alt=""
+                  alt="Follow us on YouTube"
               /></a>
             </div>
             <div class="site-copyright">
@@ -1196,9 +1196,9 @@
                 <div class="footer-link-widget col">
                   <h4 class="widget-title">SHOP</h4>
                   <ul class="footer-list mb-sm-5 mb-md-0">
-                    <li><a href="#">All Products</a></li>
-                    <li><a href="#">New Arrivals</a></li>
-                    <li><a href="#">Best Sellers</a></li>
+                    <li><a href="{% url "core:product-list" %}">All Products</a></li>
+                    <li><a href="{% url "core:deals" %}">New Arrivals</a></li>
+                    <li><a href="{% url "core:product-list" %}">Best Sellers</a></li>
                     <li><a href="{% url 'core:our_story' %}">Our Story</a></li>
                     
                   </ul>
@@ -1257,30 +1257,30 @@
               <div class="col-xl-4 col-lg-6 col-md-6 text-end d-none d-md-block">
                 <div class="mobile-social-icon">
                   <h6>Follow Us</h6>
-                  <a href="#"
+                  <a href="https://facebook.com/thangf" target="_blank" rel="noopener noreferrer"
                     ><img
                       src="{% static 'assets/imgs/theme/icons/icon-facebook-white.svg' %}"
-                      alt=""
+                      alt="Follow us on Facebook"
                   /></a>
-                  <a href="#"
+                  <a href="https://twitter.com" target="_blank" rel="noopener noreferrer"
                     ><img
                       src="{% static 'assets/imgs/theme/icons/icon-twitter-white.svg' %}"
-                      alt=""
+                      alt="Follow us on Twitter"
                   /></a>
-                  <a href="#"
+                  <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
                     ><img
                       src="{% static 'assets/imgs/theme/icons/icon-instagram-white.svg' %}"
-                      alt=""
+                      alt="Follow us on Instagram"
                   /></a>
-                  <a href="#"
+                  <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer"
                     ><img
                       src="{% static 'assets/imgs/theme/icons/icon-pinterest-white.svg' %}"
-                      alt=""
+                      alt="Follow us on Pinterest"
                   /></a>
-                  <a href="#"
+                  <a href="https://youtube.com" target="_blank" rel="noopener noreferrer"
                     ><img
                       src="{% static 'assets/imgs/theme/icons/icon-youtube-white.svg' %}"
-                      alt=""
+                      alt="Follow us on YouTube"
                   /></a>
                 </div>
                 <p class="font-sm">Up to 15% discount on your first subscribe</p>
