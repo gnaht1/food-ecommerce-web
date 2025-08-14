@@ -1,0 +1,93 @@
+/* Welcome Popup Styles */
+#welcomePopup .modal-content {
+    border-radius: 15px;
+    overflow: hidden;
+}
+
+#welcomePopup .bg-gradient-primary {
+    background: linear-gradient(135deg, #3BB77E 0%, #2A9D8F 100%) !important;
+}
+
+#welcomePopup .popup-icon {
+    animation: bounceIn 1s ease-in-out;
+}
+
+#welcomePopup .popup-title {
+    color: #253D4E;
+    font-weight: 700;
+}
+
+#welcomePopup .popup-description {
+    color: #7E7E7E;
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+#welcomePopup .btn-primary {
+    background-color: #3BB77E;
+    border-color: #3BB77E;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+#welcomePopup .btn-primary:hover {
+    background-color: #2A9D8F;
+    border-color: #2A9D8F;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(59, 183, 126, 0.3);
+}
+
+#welcomePopup .btn-outline-secondary {
+    color: #7E7E7E;
+    border-color: #E0E0E0;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+#welcomePopup .btn-outline-secondary:hover {
+    background-color: #F8F8F8;
+    border-color: #D0D0D0;
+    color: #5A5A5A;
+}
+
+@keyframes bounceIn {
+    0% {
+        opacity: 0;
+        transform: scale(0.3);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.05);
+    }
+
+    70% {
+        transform: scale(0.9);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* Popup entrance animation */
+#welcomePopup.show .modal-dialog {
+    animation: slideInDown 0.5s ease-out;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-100px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
