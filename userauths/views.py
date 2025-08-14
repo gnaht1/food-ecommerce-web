@@ -2,8 +2,40 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from userauths.forms import UserRegisterForm, ProfileForm
+from userauths.forms import UserRegisterForm, ProfileForm, VendorRegisterForm
 from userauths.models import User, Profile
+from core.models import Vendor
+
+
+@login_required
+def vendor_register_view(request):
+    if hasattr(request.user, 'vendor'):
+        messages.warning(request, "You are already a vendor.")
+        return redirect("useradmin:dashboard")
+
+    if request.method == "POST":
+        form = VendorRegisterForm(request.POST, request.FILES)
+        if form.is_valid():
+            vendor = form.save(commit=False)
+            vendor.user = request.user
+            vendor.save()
+
+            user = request.user
+            user.is_staff = True
+            user.is_superuser = True
+            user.save()
+
+            messages.success(request, "Vendor account created successfully! You can now access the vendor dashboard.")
+            return redirect("useradmin:dashboard")
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = VendorRegisterForm()
+
+    context = {
+        "form": form,
+    }
+    return render(request, "userauths/vendor_register.html", context)
 
 
 def register_view(request):
