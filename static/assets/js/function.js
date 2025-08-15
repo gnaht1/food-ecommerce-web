@@ -246,21 +246,8 @@ $(document).ready(function () {
     $(document).on('input', '.qty-val', function () {
         let quantity = $(this).val();
         let product_id = $(this).data("product-id");
-        let product_price = $(this).data("price");
 
-        // Update row subtotal
-        let subtotal = quantity * product_price;
-        $(this).closest("tr").find(".product-subtotal").text("$" + subtotal.toFixed(2));
-
-        // Update main cart totals
-        let cart_total = 0;
-        $(".product-subtotal").each(function () {
-            cart_total += parseFloat($(this).text().replace("$", ""));
-        });
-        $("#cart-subtotal").text("$" + cart_total.toFixed(2));
-        $("#cart-total").text("$" + cart_total.toFixed(2));
-
-        // Update backend session
+        // Update backend session and refresh cart HTML
         $.ajax({
             url: "/update-cart",
             data: {
@@ -270,7 +257,7 @@ $(document).ready(function () {
             dataType: "json",
             success: function (response) {
                 $(".cart-items-count").text(response.totalcartitems);
-                console.log("Cart updated on server");
+                $("#cart-list").html(response.data);
             },
             error: function (xhr, status, error) {
                 console.error("Failed to update cart on server:", error);

@@ -501,13 +501,25 @@ def delete_item_from_cart(request):
 
 
 def update_cart(request):
-    product_id = str(request.GET["id"])
-    product_qty = str(request.GET["qty"])
+    product_id = str(request.GET.get("id"))
+    product_qty = request.GET.get("qty")
+
+    if not product_id or not product_qty:
+        return JsonResponse({"error": "Missing product ID or quantity"}, status=400)
+
+    try:
+        qty_int = int(product_qty)
+        if qty_int < 1:
+            qty_int = 1  # Enforce a minimum quantity of 1
+    except (ValueError, TypeError):
+        return JsonResponse({"error": "Invalid quantity format"}, status=400)
+
     if "cart_data_obj" in request.session:
         if product_id in request.session["cart_data_obj"]:
             cart_data = request.session["cart_data_obj"]
-            cart_data[str(request.GET["id"])]["qty"] = product_qty
+            cart_data[product_id]["qty"] = str(qty_int)
             request.session["cart_data_obj"] = cart_data
+            request.session.modified = True
 
     cart_total_amount = 0
     if "cart_data_obj" in request.session:
@@ -520,13 +532,16 @@ def update_cart(request):
     context = render_to_string(
         "core/async/cart-list.html",
         {
-            "cart_data": request.session["cart_data_obj"],
-            "totalcartitems": len(request.session["cart_data_obj"]),
+            "cart_data": request.session.get("cart_data_obj", {}),
+            "totalcartitems": len(request.session.get("cart_data_obj", {})),
             "cart_total_amount": cart_total_amount,
         },
     )
     return JsonResponse(
-        {"data": context, "totalcartitems": len(request.session["cart_data_obj"])}
+        {
+            "data": context,
+            "totalcartitems": len(request.session.get("cart_data_obj", {})),
+        }
     )
 
 
