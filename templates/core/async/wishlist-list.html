@@ -1,10 +1,9 @@
-
-    <main class="main">
+<main class="main" id="wishlist-list">
         <div class="page-header breadcrumb-wrap">
             <div class="container">
                 <div class="breadcrumb">
-                    <a href="index.html" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
-                    <span></span> Shop <span></span> Fillter
+                    <a href="{% url 'core:index' %}" rel="nofollow"><i class="fi-rs-home mr-5"></i>Home</a>
+                    <span></span> Shop <span></span> Wishlist
                 </div>
             </div>
         </div>
@@ -13,7 +12,7 @@
                 <div class="col-xl-10 col-lg-12 m-auto">
                     <div class="mb-50">
                         <h1 class="heading-2 mb-10">Your Wishlist</h1>
-                        <h6 class="text-body">There are <span class="text-brand">5</span> products in this list</h6>
+                        <h6 class="text-body">There are <span class="text-brand">{{ wishlist.count }}</span> products in this list</h6>
                     </div>
                     <div class="table-responsive shopping-summery">
                         <table class="table table-wishlist">
@@ -31,9 +30,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for w in w %}
-
-                                     
+                                {% for w in wishlist %}
                                 <tr class="pt-30">
                                     <td class="custome-checkbox pl-30">
                                         <input class="form-check-input" type="checkbox" name="checkbox" id="exampleCheckbox1" value="" />
@@ -63,7 +60,7 @@
                                 </tr>
                                 {% empty %}
                                 <tr>
-                                    <td colspan="6" class="text-center">No items in wishlist</td>
+                                    <td colspan="7" class="text-center">No items in wishlist</td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
