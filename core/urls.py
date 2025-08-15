@@ -78,7 +78,7 @@ urlpatterns = [
     # Checkout Page Url
     path("checkout/<oid>/", checkout, name="checkout"),
     # Checkout Initiate URL
-    path("checkout-initiate/", checkout_initiate, name="checkout-initiate"),
+    path("checkout-initiate/", views.checkout_initiate, name="checkout_initiate"),
     # Paypal URL
     path("paypal/", include("paypal.standard.ipn.urls")),
     # Payment Successful
