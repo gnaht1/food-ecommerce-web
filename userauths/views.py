@@ -9,7 +9,7 @@ from core.models import Vendor
 
 @login_required
 def vendor_register_view(request):
-    if hasattr(request.user, 'vendor'):
+    if request.user.is_superuser:
         messages.warning(request, "You are already a vendor.")
         return redirect("useradmin:dashboard")
 
