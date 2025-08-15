@@ -81,13 +81,8 @@
                                                 </div>
                                             </div>
 
-                                            {% comment %} <div class="mt-4 ">
-                                                <p>{{  month  }}</p>
-                                                <p>{{  total_orders  }}</p>
-                                            </div> {% endcomment %}
-                                            <div>
-                                                <canvas style="height: 50px;" id="profileChart"></canvas>
-                                            </div>
+                                            
+                                            
 
 
                                         </div>
@@ -99,8 +94,8 @@
                                             </div>
                                             <div class="card-body">
                                                 <p>
-                                                    From your account dashboard. you can easily check &amp; view your <a href="#">recent orders</a>,<br />
-                                                    manage your <a href="#">shipping and billing addresses</a> and <a href="#">edit your password and account details.</a>
+                                                    From your account dashboard. you can easily check &amp; view your <a href="#orders" onclick="document.getElementById('orders-tab').click()">recent orders</a>,<br />
+                                                    manage your <a href="#address" onclick="document.getElementById('address-tab').click()">shipping and billing addresses</a> and <a href="#account-detail" onclick="document.getElementById('account-detail-tab').click()">edit your password and account details.</a>
                                                 </p>
                                             </div>
 

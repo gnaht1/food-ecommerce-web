@@ -117,25 +117,7 @@
                 />
               </a>
             </div>
-            {% comment %} <div class="product-action-1">
-              <a
-                aria-label="Add To Wishlist"
-                class="action-btn"
-                href="shop-wishlist.html"
-                ><i class="fi-rs-heart"></i
-              ></a>
-              <a
-                aria-label="Compare"
-                class="action-btn"
-                href="shop-compare.html"
-                ><i class="fi-rs-shuffle"></i
-              ></a>
-              <a 
-                href="{% url 'core:product-detail' p.pid %}" 
-                class="action-btn"
-                ><i class="fi-rs-eye"></i
-              ></a>
-            </div> {% endcomment %}
+          
             <div
               class="product-badges product-badges-position product-badges-mrg"
             >
@@ -229,18 +211,18 @@
                 </a>
               </div>
               <div class="product-action-1">
-                <a
+                {% comment %} <a
                   aria-label="Add To Wishlist"
                   class="action-btn"
                   href="shop-wishlist.html"
                   ><i class="fi-rs-heart"></i
-                ></a>
-                <a
+                ></a> {% endcomment %}
+                {% comment %} <a
                   aria-label="Compare"
                   class="action-btn"
                   href="shop-compare.html"
                   ><i class="fi-rs-shuffle"></i
-                ></a>
+                ></a> {% endcomment %}
                 <a 
                   href="{% url 'core:product-detail' p.pid %}" 
                   class="action-btn"
@@ -343,19 +325,19 @@
               </a>
             </div>
             <div class="product-action-1">
-              <a
+              {% comment %} <a
                 aria-label="Add To Wishlist"
                 class="action-btn add-to-wishlist"
                 data-product-item="{{ p.id }}"
                 href="javascript:void(0)"
                 ><i class="fi-rs-heart"></i
-              ></a>
-              <a
+              ></a> {% endcomment %}
+              {% comment %} <a
                 aria-label="Compare"
                 class="action-btn"
                 href="shop-compare.html"
                 ><i class="fi-rs-shuffle"></i
-              ></a>
+              ></a> {% endcomment %}
               <a 
                 href="{% url 'core:product-detail' p.pid %}" 
                 class="action-btn"
@@ -463,19 +445,19 @@
                 </a>
               </div>
               <div class="product-action-1">
-                <a
+                {% comment %} <a
                   aria-label="Add To Wishlist"
                   class="action-btn add-to-wishlist"
                   data-product-item="{{ p.id }}"
                   href="javascript:void(0)"
                   ><i class="fi-rs-heart"></i
-                ></a>
-                <a
+                ></a> {% endcomment %}
+                {% comment %} <a
                   aria-label="Compare"
                   class="action-btn"
                   href="shop-compare.html"
                   ><i class="fi-rs-shuffle"></i
-                ></a>
+                ></a> {% endcomment %}
                 <a 
                   href="{% url 'core:product-detail' p.pid %}" 
                   class="action-btn"
@@ -579,17 +561,17 @@
                         </a>
                       </div>
                       <div class="product-action-1">
-                        <a
+                        {% comment %} <a
                           aria-label="Add To Wishlist"
                           class="action-btn add-to-wishlist"
                           data-product-item="{{ deal_product.id }}"
                           href="javascript:void(0)"
-                        ><i class="fi-rs-heart"></i></a>
-                        <a
+                        ><i class="fi-rs-heart"></i></a> {% endcomment %}
+                        {% comment %} <a
                           aria-label="Compare"
                           class="action-btn"
                           href="shop-compare.html"
-                        ><i class="fi-rs-shuffle"></i></a>
+                        ><i class="fi-rs-shuffle"></i></a> {% endcomment %}
                         <a 
                           href="{% url 'core:product-detail' deal_product.pid %}" 
                           class="action-btn"
