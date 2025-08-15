@@ -6,7 +6,14 @@ from django.contrib.auth.hashers import check_password
 from django.contrib import messages
 from decimal import Decimal
 
-from core.models import CartOrder, CartOrderItems, Product, Category, ProductReview, Vendor
+from core.models import (
+    CartOrder,
+    CartOrderItems,
+    Product,
+    Category,
+    ProductReview,
+    Vendor,
+)
 from core.models import CartOrderItems
 from userauths.models import Profile, User
 from useradmin.forms import AddProductForm
@@ -19,25 +26,35 @@ import datetime
 @admin_required
 def dashboard(request):
     vendor = Vendor.objects.get(user=request.user)
-    
+
     products = Product.objects.filter(vendor=vendor)
-    order_items = CartOrderItems.objects.filter(product__in=products, order__paid_status=True)
-    
-    revenue = order_items.aggregate(price=Sum('total'))
-    
+    order_items = CartOrderItems.objects.filter(
+        product__in=products, order__paid_status=True
+    )
+
+    revenue = order_items.aggregate(price=Sum("total"))
+
     this_month = datetime.datetime.now().month
     monthly_order_items = order_items.filter(order__order_date__month=this_month)
-    monthly_revenue = monthly_order_items.aggregate(price=Sum('total'))
-    
-    latest_orders_query = CartOrder.objects.filter(cartorderitems__product__vendor=vendor).distinct().order_by("-id")
-    
+    monthly_revenue = monthly_order_items.aggregate(price=Sum("total"))
+
+    latest_orders_query = (
+        CartOrder.objects.filter(cartorderitems__product__vendor=vendor)
+        .distinct()
+        .order_by("-id")
+    )
+
     for order in latest_orders_query:
         vendor_items = order.cartorderitems_set.filter(product__vendor=vendor)
-        order.vendor_total = vendor_items.aggregate(total=Sum('total'))['total'] or 0
+        order.vendor_total = vendor_items.aggregate(total=Sum("total"))["total"] or 0
 
     # Get users who have ordered from this vendor, and show the most recently registered ones.
-    new_customers = User.objects.filter(cartorder__in=latest_orders_query).distinct().order_by("-id")[:6]
-    
+    new_customers = (
+        User.objects.filter(cartorder__in=latest_orders_query)
+        .distinct()
+        .order_by("-id")[:6]
+    )
+
     all_categories = Category.objects.all()
 
     # Save analytics to database - now with vendor-specific data
@@ -66,20 +83,20 @@ def dashboard(request):
 @admin_required
 def products(request):
     vendor = Vendor.objects.get(user=request.user)
-    
+
     # Start with all products for the vendor
     products_query = Product.objects.filter(vendor=vendor).order_by("-id")
-    
+
     # Get the status from the request
-    status = request.GET.get('status')
-    
+    status = request.GET.get("status")
+
     # Filter by status if provided and valid
-    if status in ['draft', 'disabled', 'in_review', 'published', 'rejected']:
+    if status in ["draft", "disabled", "in_review", "published", "rejected"]:
         products_query = products_query.filter(product_status=status)
 
     context = {
         "products": products_query,
-        "selected_status": status, # To keep the dropdown on the selected value
+        "selected_status": status,  # To keep the dropdown on the selected value
     }
     return render(request, "useradmin/products.html", context)
 
@@ -131,22 +148,26 @@ def delete_product(request, pid):
 @admin_required
 def orders(request):
     vendor = Vendor.objects.get(user=request.user)
-    orders_query = CartOrder.objects.filter(cartorderitems__product__vendor=vendor).distinct().order_by("-id")
+    orders_query = (
+        CartOrder.objects.filter(cartorderitems__product__vendor=vendor)
+        .distinct()
+        .order_by("-id")
+    )
 
-    search_query = request.GET.get('q')
-    status_query = request.GET.get('status')
+    search_query = request.GET.get("q")
+    status_query = request.GET.get("status")
 
     if search_query:
         orders_query = orders_query.filter(
-            Q(oid__icontains=search_query) |
-            Q(full_name__icontains=search_query) |
-            Q(email__icontains=search_query) |
-            Q(phone__icontains=search_query)
+            Q(oid__icontains=search_query)
+            | Q(full_name__icontains=search_query)
+            | Q(email__icontains=search_query)
+            | Q(phone__icontains=search_query)
         ).distinct()
 
-    if status_query == 'paid':
+    if status_query == "paid":
         orders_query = orders_query.filter(paid_status=True)
-    elif status_query == 'not_paid':
+    elif status_query == "not_paid":
         orders_query = orders_query.filter(paid_status=False)
 
     context = {
@@ -183,14 +204,54 @@ def change_order_status(request, oid):
 
 
 @admin_required
+@csrf_exempt
+def delete_order(request, id):
+    if request.method == "POST":
+        try:
+            order = CartOrder.objects.get(id=id)
+            vendor = Vendor.objects.get(user=request.user)
+
+            # Check if this vendor has items in this order
+            vendor_items = CartOrderItems.objects.filter(
+                order=order, product__vendor=vendor
+            )
+
+            if vendor_items.exists():
+                # Delete only the vendor's items from this order
+                vendor_items.delete()
+
+                # Check if order has any remaining items
+                remaining_items = CartOrderItems.objects.filter(order=order)
+                if not remaining_items.exists():
+                    # If no items left, delete the entire order
+                    order.delete()
+                    messages.success(request, "Order deleted successfully")
+                else:
+                    messages.success(
+                        request, "Your items removed from the order successfully"
+                    )
+            else:
+                messages.error(
+                    request, "You don't have permission to modify this order"
+                )
+
+        except CartOrder.DoesNotExist:
+            messages.error(request, "Order not found")
+
+    return redirect("useradmin:orders")
+
+
+@admin_required
 def shop_page(request):
     vendor = Vendor.objects.get(user=request.user)
     products = Product.objects.filter(vendor=vendor)
-    
+
     # Calculate revenue and sales for this vendor only
-    order_items = CartOrderItems.objects.filter(product__in=products, order__paid_status=True)
-    revenue = order_items.aggregate(price=Sum('total'))
-    total_sales = order_items.aggregate(qty=Sum('qty'))
+    order_items = CartOrderItems.objects.filter(
+        product__in=products, order__paid_status=True
+    )
+    revenue = order_items.aggregate(price=Sum("total"))
+    total_sales = order_items.aggregate(qty=Sum("qty"))
 
     context = {
         "products": products,
@@ -227,7 +288,7 @@ def settings(request):
         authentic_rating = request.POST.get("authentic_rating")
         days_return = request.POST.get("days_return")
         warranty_period = request.POST.get("warranty_period")
-        
+
         image = request.FILES.get("image")
         cover_image = request.FILES.get("cover_image")
 
@@ -246,7 +307,7 @@ def settings(request):
             vendor.image = image
         if cover_image is not None:
             vendor.cover_image = cover_image
-        
+
         vendor.save()
         messages.success(request, "Shop Settings Updated Successfully")
         return redirect("useradmin:settings")

@@ -5,7 +5,7 @@
     <div class="content-header">
         <div>
             <h2 class="content-title card-title">Order detail</h2>
-            <p>Details for Order ID: 3453012</p>
+            {% comment %} <p>Details for Order ID: 3453012</p> {% endcomment %}
         </div>
     </div>
     <div class="card">
@@ -23,7 +23,11 @@
                         <option value="delivered">Delivered</option>
                     </select>
                     <button class="btn btn-primary"  type="submit">Save</button>
-                </div>
+                </form>
+                <form method="POST" action="{% url 'useradmin:delete_order' order.id %}" class="d-inline-block mt-2" onsubmit="return confirm('Are you sure you want to delete this order? This action cannot be undone.')">
+                    {% csrf_token %}
+                    <button class="btn btn-danger" type="submit">Cancel/Delete Order</button>
+                </form>
             </div>
         </header>
         <!-- card-header end// -->

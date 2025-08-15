@@ -17,6 +17,11 @@ urlpatterns = [
         name="change_order_status",
     ),
     path(
+        "delete_order/<int:id>/",
+        views.delete_order,
+        name="delete_order",
+    ),
+    path(
         "shop_page/",
         views.shop_page,
         name="shop_page",
