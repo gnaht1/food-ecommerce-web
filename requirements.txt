@@ -14,6 +14,9 @@ shortuuid              # for ShortUUIDField in models
 # Admin UI
 django-jazzmin
 
+# Django utilities
+django-humanize        # for number/date formatting in templates
+
 # Tagging & rich text
 django-taggit
 django-ckeditor-5
@@ -26,11 +29,15 @@ stripe                 # if you use the Stripe Python SDK in your code
 # Static file serving (if you go the WhiteNoise route)
 whitenoise
 
+# HTTP requests
+requests               # for external API calls
+
 # AI/Chatbot dependencies
 google-generativeai    # for Gemini AI integration
 fuzzywuzzy             # for fuzzy string matching
 python-Levenshtein     # optional but improves fuzzywuzzy performance
 pandas                 # for data processing
+numpy                  # data processing support
 
 # WSGI server for production
 gunicorn

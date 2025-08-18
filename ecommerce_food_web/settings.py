@@ -42,6 +42,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://127.0.0.1:8000",
     "http://172.30.2.31",
     "http://172.30.2.31:8000",
+    "http://172.30.2.158",
 ]
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 # Application definition
@@ -368,8 +369,7 @@ CKEDITOR_5_CONFIGS = {
         },
     },
 }
-
-PAYPAL_RECEIVER_EMAIL = "22521316@gm.uit.edu.vn"
+PAYPAL_RECEIVER_EMAIL = env.str("PAYPAL_RECEIVER_EMAIL")
 PAYPAL_TEST = True
 
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
@@ -383,14 +383,14 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 
 # Session security
-# SESSION_COOKIE_SECURE = not DEBUG
-SESSION_COOKIE_SECURE = False
+
+SESSION_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # CSRF security
-# CSRF_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = False
+
+CSRF_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = True
 
 # Cache configuration for better performance
