@@ -43,6 +43,7 @@ CSRF_TRUSTED_ORIGINS = [
     "http://172.30.2.31",
     "http://172.30.2.31:8000",
     "http://172.30.2.158",
+    "http://172.30.2.158:8000",
 ]
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
 # Application definition
