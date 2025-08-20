@@ -71,7 +71,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Phải đặt ngay sau SecurityMiddleware
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -155,36 +154,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
-# SỬA LỖI: STATICFILES_DIRS phải có trong development, không phải production
-if DEBUG:  # Đổi từ "not DEBUG" thành "DEBUG"
-    STATICFILES_DIRS = [
-        os.path.join(BASE_DIR, "static"),
-    ]
+# Di chuyển STATICFILES_DIRS ra ngoài để nó hoạt động ở cả development và production
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
-# Trong production
-if not DEBUG:
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
-        },
-    }
-
-    # Cấu hình WhiteNoise
-    WHITENOISE_USE_FINDERS = True
-    WHITENOISE_AUTOREFRESH = True
-else:
-    # Development - sử dụng storage mặc định
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
 
 # Đảm bảo thư mục media tồn tại
 os.makedirs(MEDIA_ROOT, exist_ok=True)
@@ -384,15 +358,26 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 
 # Session security
-
-SESSION_COOKIE_SECURE = not DEBUG
+# temp
+SESSION_COOKIE_SECURE = False
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_AGE = 86400  # 24 hours
 
 # CSRF security
-
-CSRF_COOKIE_SECURE = not DEBUG
+# temp
+CSRF_COOKIE_SECURE = False
 CSRF_COOKIE_HTTPONLY = True
+CSRF_FAILURE_VIEW = "django.views.csrf.csrf_failure"
+CSRF_USE_SESSIONS = False
+
+# Thêm cấu hình CORS
+CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:8000",
+    "http://127.0.0.1:8000",
+    "http://172.30.2.31:8000",
+    "http://172.30.2.158:8000",
+]
 
 # Cache configuration for better performance
 if not DEBUG:
