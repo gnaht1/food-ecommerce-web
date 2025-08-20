@@ -3,7 +3,7 @@
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content border-0 shadow-lg">
       <div class="modal-header border-0 bg-gradient-primary text-white position-relative">
-        <h5 class="modal-title text-center w-100" id="welcomePopupLabel">
+        <h5 class="modal-title text-center w-100 text-white" id="welcomePopupLabel">
           <i class="fas fa-gift me-2"></i>Welcome to Nest Mart!
         </h5>
         <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -16,23 +16,23 @@
           </div>
           <h3 class="popup-title mb-3">Welcome to Our Food Store Website!</h3>
           <p class="popup-description mb-4 text-justify" style="text-align: justify;">
-            1. Đây là 1 website để bán nguyên liệu thô cho người dùng. Website cung cấp những tính năng như: <br>
+            <strong>1. Đây là 1 website để bán nguyên liệu thô cho người dùng. </strong> Website cung cấp những tính năng như: <br>
             - <strong>User:</strong> Đăng ký, đăng nhập, đăng ký trở thành <strong>Vendor</strong>, tìm kiếm sản phẩm, thêm sản phẩm vào giỏ hàng, thanh toán, và quản lý đơn hàng,... <br>
             - <strong>Vendor:</strong> Quản lý <strong>dashboard</strong>, thêm sản phẩm, xử lý đơn hàng và xem báo cáo doanh thu, ...<br>
             Ngoài ra, website còn có tính năng <strong>Chatbot AI</strong> nhằm hỗ trợ người dùng (đặc biệt cho những người không biết nấu ăn)
             để gợi ý ra nguyên liệu cùng công thức nấu ăn cho món đó. Họ cũng có thể thêm nhanh các nguyên liệu vào giỏ hàng để mua sắm dễ dàng hơn.
           </p>
           <p class="popup-description mb-4 text-justify" style="text-align: justify;">
-            2. Tài khoản admin: <br/>
+            <strong>2. Tài khoản admin: <br/></strong>
             <strong>Email:</strong> rexming2018@gmail.com <br />
             <strong>Password:</strong> 12345678
           </p>
           <p class="popup-description mb-4 text-justify" style="text-align: justify;">
-            3. Hướng dẫn: <br/>
-            3.1. <strong>Test chức năng thanh toán:</strong> <br />
+            <strong>3. Hướng dẫn: <br/></strong>
+            <strong>3.1. Test chức năng thanh toán:</strong> <br />
             - Thẻ thanh toán: Chọn chức năng thanh toán bằng Stripe: <br />
             - Nhập thông tin thẻ: <strong>Nhập số thẻ:</strong> 4242 4242 4242 4242; <strong>Ngày hết hạn:</strong> Ngày bất kì trong tương lai; <strong>Mã CVV:</strong> bất kỳ; <strong>Tên:</strong> bất kỳ. <br/>
-            3.2. <strong>Test chatbot:</strong><br/>
+            <strong>3.2. Test chatbot:</strong><br/>
             - Mở chatbot và nhập prompt đại loại như: "Tôi muốn ăn Sandwich". <br/>
             - Kiểm tra xem chatbot có gợi ý đúng món ăn bạn cần không.<br/>
             - Có thể nhập prompt: "Món khác" để chatbot gợi ý món ăn khác.<br/>
@@ -42,14 +42,14 @@
             <button type="button" class="btn btn-primary btn-lg me-2" data-bs-dismiss="modal">
               <i class="fas fa-shopping-cart me-2"></i>Start Shopping
             </button>
-            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+            {% comment %} <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
               <i class="fas fa-times me-2"></i>Maybe Later
-            </button>
+            </button> {% endcomment %}
           </div>
         </div>
       </div>
       <div class="modal-footer border-0 justify-content-center">
-        <small class="text-muted">
+        <small class="text-white">
           <input type="checkbox" id="dontShowAgain" class="me-2">
           <label for="dontShowAgain">Don't show this again</label>
         </small>

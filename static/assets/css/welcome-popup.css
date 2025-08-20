@@ -91,3 +91,44 @@
         transform: translateY(0);
     }
 }
+
+/* Checkbox styling */
+#welcomePopup .modal-footer small {
+    font-size: 14px;
+}
+
+#welcomePopup #dontShowAgain {
+    width: 16px;
+    height: 16px;
+    accent-color: #3BB77E;
+    cursor: pointer;
+    border-radius: 3px;
+}
+
+#welcomePopup label[for="dontShowAgain"] {
+    cursor: pointer;
+    color: #253D4E;
+    font-weight: 500;
+    user-select: none;
+    transition: color 0.3s ease;
+}
+
+#welcomePopup label[for="dontShowAgain"]:hover {
+    color: #3BB77E;
+}
+
+/* Make the checkbox area more interactive */
+#welcomePopup .modal-footer small {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border-radius: 25px;
+    background-color: rgba(59, 183, 126, 0.1);
+    transition: all 0.3s ease;
+}
+
+#welcomePopup .modal-footer small:hover {
+    background-color: rgba(59, 183, 126, 0.15);
+    transform: translateY(-1px);
+}
