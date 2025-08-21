@@ -3,38 +3,23 @@
   <!DOCTYPE html>
   <html class="no-js" lang="en">
     <head>
-      <meta charset="utf-8" />
-      <title>Nest - Multipurpose eCommerce HTML Template</title>
-      <meta http-equiv="x-ua-compatible" content="ie=edge" />
-      <meta name="description" content="" />
-      <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <meta property="og:title" content="" />
-      <meta property="og:type" content="" />
-      <meta property="og:url" content="" />
-      <meta property="og:image" content="" />
-      <!-- Favicon -->
-      <link
-        rel="shortcut icon"
-        type="image/x-icon"
-        href="{% static 'assets/imgs/theme/favicon.svg' %}"
-      />
-      <!-- Template CSS -->
-      <link
-        rel="stylesheet"
-        href="{% static 'assets/css/plugins/slider-range.css' %}"
-      />
-      <link rel="stylesheet" href="{% static 'assets/css/main.css'%}" />
+  <meta charset="utf-8" />
+  <title>Nest - Multipurpose eCommerce HTML Template</title>
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="description" content="" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/imgs/theme/favicon.svg' %}" />
 
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <!-- CSS -->
+  <link rel="stylesheet" href="{% static 'assets/css/plugins/slider-range.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/main.css' %}">
+  <link rel="stylesheet" href="{% static 'assets/css/welcome-popup.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
-      <!-- Welcome Popup CSS -->
-      <link rel="stylesheet" href="{% static 'assets/css/welcome-popup.css' %}" />
+  <!-- (Nếu cần) modernizr có thể để nguyên ở head -->
+  <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}" defer></script>
+</head>
 
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-      <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
- 
-    </head>
-    </head>
 
     <body>
       <!-- Welcome Popup Modal -->
@@ -697,10 +682,17 @@
                 {% endfor %}
             {% endif %}
             <script>
-              setTimeout (() => {
-                  $(".alert").alert('close');
-              }, 3000)
-            </script>
+            setTimeout(() => {
+              document.querySelectorAll('.alert').forEach(el => {
+                if (window.bootstrap && bootstrap.Alert) {
+                  try { bootstrap.Alert.getOrCreateInstance(el).close(); } catch (e) {}
+                } else {
+                  // fallback: tự ẩn nếu vì lý do nào đó Bootstrap chưa sẵn sàng
+                  el.style.display = 'none';
+                }
+              });
+            }, 3000);
+          </script>
           </div>
         </div>
       </header>
@@ -723,8 +715,8 @@
           </div>
           <div class="mobile-header-content-area">
             <div class="mobile-search search-style-3 mobile-header-border">
-              <form action="#">
-                <input type="text" placeholder="Search for items…" />
+              <form action="{% url 'core:search' %}" method="GET">
+                <input type="text" placeholder="Search for items…" name="q" value="{{ request.GET.q }}" />
                 <button type="submit"><i class="fi-rs-search"></i></button>
               </form>
             </div>
@@ -732,200 +724,40 @@
               <!-- mobile menu start -->
               <nav>
                 <ul class="mobile-menu font-heading">
+                  <li><a href="{% url 'core:index' %}">Home</a></li>
+
                   <li class="menu-item-has-children">
-                    <a href="index.html">Home</a>
+                    <a href="{% url 'core:category-list' %}">Categories</a>
                     <ul class="dropdown">
-                      <li><a href="index.html">Home 1</a></li>
-                      <li><a href="index-2.html">Home 2</a></li>
-                      <li><a href="index-3.html">Home 3</a></li>
-                      <li><a href="index-4.html">Home 4</a></li>
-                      <li><a href="index-5.html">Home 5</a></li>
-                      <li><a href="index-6.html">Home 6</a></li>
+                      {% for c in categories %}
+                        <li><a href="{% url 'core:category-product-list' c.cid %}">{{ c.title }}</a></li>
+                      {% endfor %}
+                      <li><hr></li>
+                      <li><a href="{% url 'core:category-list' %}">All Categories</a></li>
                     </ul>
                   </li>
-                  <li class="menu-item-has-children">
-                    <a href="shop-grid-right.html">shop</a>
-                    <ul class="dropdown">
-                      <li>
-                        <a href="shop-grid-right.html"
-                          >Shop Grid – Right Sidebar</a
-                        >
-                      </li>
-                      <li>
-                        <a href="shop-grid-left.html">Shop Grid – Left Sidebar</a>
-                      </li>
-                      <li>
-                        <a href="shop-list-right.html"
-                          >Shop List – Right Sidebar</a
-                        >
-                      </li>
-                      <li>
-                        <a href="shop-list-left.html">Shop List – Left Sidebar</a>
-                      </li>
-                      <li><a href="shop-fullwidth.html">Shop - Wide</a></li>
-                      <li class="menu-item-has-children">
-                        <a href="#">Single Product</a>
-                        <ul class="dropdown">
-                          <li>
-                            <a href="shop-product-right.html"
-                              >Product – Right Sidebar</a
-                            >
-                          </li>
-                          <li>
-                            <a href="shop-product-left.html"
-                              >Product – Left Sidebar</a
-                            >
-                          </li>
-                          <li>
-                            <a href="shop-product-full.html"
-                              >Product – No sidebar</a
-                            >
-                          </li>
-                          <li>
-                            <a href="shop-product-vendor.html"
-                              >Product – Vendor Infor</a
-                            >
-                          </li>
-                        </ul>
-                      </li>
-                      <li><a href="shop-filter.html">Shop – Filter</a></li>
-                      <li><a href="shop-wishlist.html">Shop – Wishlist</a></li>
-                      <li><a href="shop-cart.html">Shop – Cart</a></li>
-                      <li><a href="shop-checkout.html">Shop – Checkout</a></li>
-                      {% comment %} <li><a href="shop-compare.html">Shop – Compare</a></li> {% endcomment %}
-                      <li class="menu-item-has-children">
-                        <a href="#">Shop Invoice</a>
-                        <ul class="dropdown">
-                          <li>
-                            <a href="shop-invoice-1.html">Shop Invoice 1</a>
-                          </li>
-                          <li>
-                            <a href="shop-invoice-2.html">Shop Invoice 2</a>
-                          </li>
-                          <li>
-                            <a href="shop-invoice-3.html">Shop Invoice 3</a>
-                          </li>
-                          <li>
-                            <a href="shop-invoice-4.html">Shop Invoice 4</a>
-                          </li>
-                          <li>
-                            <a href="shop-invoice-5.html">Shop Invoice 5</a>
-                          </li>
-                          <li>
-                            <a href="shop-invoice-6.html">Shop Invoice 6</a>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
+
+                  <li><a href="{% url 'core:product-list' %}">Shop</a></li>
+                  <li><a href="{% url 'core:deals' %}">Deals</a></li>
+
                   <li class="menu-item-has-children">
                     <a href="#">Vendors</a>
                     <ul class="dropdown">
-                      <li><a href="vendors-grid.html">Vendors Grid</a></li>
-                      <li><a href="vendors-list.html">Vendors List</a></li>
-                      <li>
-                        <a href="vendor-details-1.html">Vendor Details 01</a>
-                      </li>
-                      <li>
-                        <a href="vendor-details-2.html">Vendor Details 02</a>
-                      </li>
-                      <li>
-                        <a href="vendor-dashboard.html">Vendor Dashboard</a>
-                      </li>
-                      <li><a href="vendor-guide.html">Vendor Guide</a></li>
+                      <li><a href="{% url 'core:vendor-list' %}">All Vendors</a></li>
+                      <li><a href="{% url 'userauths:vendor-register' %}">Become a Vendor</a></li>
+                      <li><hr></li>
+                      {% for v in vendors %}
+                        <li>
+                          <a href="{% url 'core:vendor-detail' v.vid %}">
+                            <img src="{{ v.image.url }}" alt="{{ v.title }}"
+                                style="width:20px;height:20px;border-radius:50%;margin-right:8px;">
+                            {{ v.title }}
+                          </a>
+                        </li>
+                      {% endfor %}
                     </ul>
                   </li>
-                  <li class="menu-item-has-children">
-                    <a href="#">Mega menu</a>
-                    <ul class="dropdown">
-                      <li class="menu-item-has-children">
-                        <a href="#">Women's Fashion</a>
-                        <ul class="dropdown">
-                          <li><a href="shop-product-right.html">Dresses</a></li>
-                          <li>
-                            <a href="shop-product-right.html">Blouses & Shirts</a>
-                          </li>
-                          <li>
-                            <a href="shop-product-right.html"
-                              >Hoodies & Sweatshirts</a
-                            >
-                          </li>
-                          <li>
-                            <a href="shop-product-right.html">Women's Sets</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li class="menu-item-has-children">
-                        <a href="#">Men's Fashion</a>
-                        <ul class="dropdown">
-                          <li><a href="shop-product-right.html">Jackets</a></li>
-                          <li>
-                            <a href="shop-product-right.html"
-                              >Casual Faux Leather</a
-                            >
-                          </li>
-                          <li>
-                            <a href="shop-product-right.html">Genuine Leather</a>
-                          </li>
-                        </ul>
-                      </li>
-                      <li class="menu-item-has-children">
-                        <a href="#">Technology</a>
-                        <ul class="dropdown">
-                          <li>
-                            <a href="shop-product-right.html">Gaming Laptops</a>
-                          </li>
-                          <li>
-                            <a href="shop-product-right.html"
-                              >Ultraslim Laptops</a
-                            >
-                          </li>
-                          <li><a href="shop-product-right.html">Tablets</a></li>
-                          <li>
-                            <a href="shop-product-right.html"
-                              >Laptop Accessories</a
-                            >
-                          </li>
-                          <li>
-                            <a href="shop-product-right.html"
-                              >Tablet Accessories</a
-                            >
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
-                  <li class="menu-item-has-children">
-                    <a href="blog-category-fullwidth.html">Blog</a>
-                    <ul class="dropdown">
-                      <li>
-                        <a href="blog-category-grid.html">Blog Category Grid</a>
-                      </li>
-                      <li>
-                        <a href="blog-category-list.html">Blog Category List</a>
-                      </li>
-                      <li>
-                        <a href="blog-category-big.html">Blog Category Big</a>
-                      </li>
-                      <li>
-                        <a href="blog-category-fullwidth.html"
-                          >Blog Category Wide</a
-                        >
-                      </li>
-                      <li class="menu-item-has-children">
-                        <a href="#">Single Product Layout</a>
-                        <ul class="dropdown">
-                          <li><a href="blog-post-left.html">Left Sidebar</a></li>
-                          <li>
-                            <a href="blog-post-right.html">Right Sidebar</a>
-                          </li>
-                          <li>
-                            <a href="blog-post-fullwidth.html">No Sidebar</a>
-                          </li>
-                        </ul>
-                      </li>
-                    </ul>
-                  </li>
+
                   <li class="menu-item-has-children">
                     <a href="#">Pages</a>
                     <ul class="dropdown">
@@ -934,46 +766,34 @@
                       <li><a href="{% url 'core:dashboard' %}">My Account</a></li>
                       <li><a href="{% url 'userauths:sign-in' %}">Login</a></li>
                       <li><a href="{% url 'userauths:sign-up' %}">Register</a></li>
-                      <li>
-                        <a href="page-forgot-password.html"
-                          >Forgot password</a
-                        >
-                      </li>
-                      <li>
-                        <a href="page-reset-password.html">Reset password</a>
-                      </li>
-                      <li>
-                        <a href="{% url 'core:purchase_guide' %}">Purchase Guide</a>
-                      </li>
-                      <li>
-                        <a href="{% url 'core:privacy_policy' %}">Privacy Policy</a>
-                      </li>
+                      <li><a href="{% url 'core:purchase_guide' %}">Purchase Guide</a></li>
+                      <li><a href="{% url 'core:privacy_policy' %}">Privacy Policy</a></li>
                       <li><a href="{% url 'core:terms_of_service' %}">Terms of Service</a></li>
-                      <li><a href="page-404.html">404 Page</a></li>
+                      <li><a href="{% url 'core:faqs' %}">FAQs</a></li>
                     </ul>
                   </li>
-                  <li class="menu-item-has-children">
-                    <a href="#">Language</a>
-                    <ul class="dropdown">
-                      <li><a href="#">English</a></li>
-                      <li><a href="#">French</a></li>
-                      <li><a href="#">German</a></li>
-                      <li><a href="#">Spanish</a></li>
-                    </ul>
-                  </li>
+
+                  <li><a href="{% url 'core:news' %}">News</a></li>
+                  <li><a href="{% url 'core:contact' %}">Contact</a></li>
                 </ul>
               </nav>
+
               <!-- mobile menu end -->
             </div>
             <div class="mobile-header-info-wrap">
               <div class="single-mobile-header-info">
-                <a href="page-contact.html"
+                <a href="{% url "core:contact" %}"
                   ><i class="fi-rs-marker"></i> Our location
                 </a>
               </div>
               <div class="single-mobile-header-info">
-                <a href="page-login.html"
-                  ><i class="fi-rs-user"></i>Log In / Sign Up
+                <a href="{% url "userauths:sign-in" %}"
+                  ><i class="fi-rs-user"></i>Log In 
+                </a>
+              </div>
+              <div class="single-mobile-header-info">
+                <a href="{% url 'userauths:sign-up' %}"
+                  ><i class="fi-rs-user"></i>Sign Up 
                 </a>
               </div>
               <div class="single-mobile-header-info">
@@ -1313,31 +1133,40 @@
         </div>
         {% endcomment %}
         <!-- Vendor JS-->
-        <script
-          data-cfasync="false"
-          src="{% static '/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js' %}"
-        ></script>
-        <script src="{% static 'assets/js/vendor/modernizr-3.6.0.min.js' %}"></script>
-        <script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
-        <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script>
-        <script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/slick.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.syotimer.min.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/wow.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/slider-range.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/perfect-scrollbar.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/magnific-popup.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/select2.min.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/waypoints.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/counterup.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.countdown.min.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/images-loaded.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/isotope.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/scrollup.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
-        <script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+        
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+
+<!-- jQuery - CHỈ 1 version -->
+<script src="{% static 'assets/js/vendor/jquery-3.6.0.min.js' %}"></script>
+<!-- Nếu project không cần, hãy bỏ jquery-migrate để tránh xung đột -->
+<!-- <script src="{% static 'assets/js/vendor/jquery-migrate-3.3.0.min.js' %}"></script> -->
+
+<!-- Bootstrap 5 bundle (đã gồm Popper) -->
+<script src="{% static 'assets/js/vendor/bootstrap.bundle.min.js' %}"></script>
+
+<!-- Plugins phụ thuộc jQuery -->
+<script src="{% static 'assets/js/plugins/slick.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.syotimer.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/wow.js' %}"></script>
+<script src="{% static 'assets/js/plugins/slider-range.js' %}"></script>
+<script src="{% static 'assets/js/plugins/perfect-scrollbar.js' %}"></script>
+<script src="{% static 'assets/js/plugins/magnific-popup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/select2.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/waypoints.js' %}"></script>
+<script src="{% static 'assets/js/plugins/counterup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.countdown.min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/images-loaded.js' %}"></script>
+<script src="{% static 'assets/js/plugins/isotope.js' %}"></script>
+<script src="{% static 'assets/js/plugins/scrollup.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.vticker-min.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.theia.sticky.js' %}"></script>
+<script src="{% static 'assets/js/plugins/jquery.elevatezoom.js' %}"></script>
+
+<!-- Thư viện khác -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.11/clipboard.min.js"></script>
+        
+        
         <!-- Template  JS -->
         <script src="{% static 'assets/js/main.js' %}"></script>
         <script src="{% static 'assets/js/shop.js' %}"></script>
