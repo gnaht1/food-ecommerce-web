@@ -1,3 +1,11 @@
+{% load static %}
+<head>
+    <!-- ...existing code... -->
+    <link rel="stylesheet" href="{% static 'assets/css/welcome-popup.css' %}?v=20250821-0405">
+
+    <!-- ...existing code... -->
+</head>
+
 <!-- Welcome Popup Modal -->
 <div class="modal fade" id="welcomePopup" tabindex="-1" aria-labelledby="welcomePopupLabel" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -16,7 +24,7 @@
           </div>
           <h3 class="popup-title mb-3">Welcome to Our Food Store Website!</h3>
           <p class="popup-description mb-4 text-justify" style="text-align: justify;">
-            <strong>1. Đây là 1 website để bán nguyên liệu thô cho người dùng. </strong> Website cung cấp những tính năng như: <br>
+            <strong>1. Đây là 1 website demo bán nguyên liệu thô cho người dùng. </strong> Website cung cấp những tính năng như: <br>
             - <strong>User:</strong> Đăng ký, đăng nhập, đăng ký trở thành <strong>Vendor</strong>, tìm kiếm sản phẩm, thêm sản phẩm vào giỏ hàng, thanh toán, và quản lý đơn hàng,... <br>
             - <strong>Vendor:</strong> Quản lý <strong>dashboard</strong>, thêm sản phẩm, xử lý đơn hàng và xem báo cáo doanh thu, ...<br>
             Ngoài ra, website còn có tính năng <strong>Chatbot AI</strong> nhằm hỗ trợ người dùng (đặc biệt cho những người không biết nấu ăn)
@@ -42,9 +50,6 @@
             <button type="button" class="btn btn-primary btn-lg me-2" data-bs-dismiss="modal">
               <i class="fas fa-shopping-cart me-2"></i>Start Shopping
             </button>
-            {% comment %} <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-              <i class="fas fa-times me-2"></i>Maybe Later
-            </button> {% endcomment %}
           </div>
         </div>
       </div>

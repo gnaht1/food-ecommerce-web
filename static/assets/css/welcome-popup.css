@@ -93,18 +93,40 @@
 }
 
 /* Checkbox styling */
-#welcomePopup .modal-footer small {
-    font-size: 14px;
-}
-
 #welcomePopup #dontShowAgain {
+    appearance: none !important;
+    /* vô hiệu hoá mặc định trình duyệt/Bootstrap */
+    -webkit-appearance: none !important;
     width: 16px;
     height: 16px;
-    accent-color: #3BB77E;
-    cursor: pointer;
+    border: 2px solid #3BB77E;
     border-radius: 3px;
+    display: inline-block;
+    position: relative;
+    cursor: pointer;
+    background-color: #fff;
+    vertical-align: middle;
 }
 
+#welcomePopup #dontShowAgain:checked {
+    background-color: #3BB77E;
+    border-color: #3BB77E;
+}
+
+#welcomePopup #dontShowAgain:checked::after {
+    content: "";
+    position: absolute;
+    left: 3px;
+    top: 0px;
+    width: 5px;
+    height: 9px;
+    border: 2px solid #fff;
+    border-top: 0;
+    border-left: 0;
+    transform: rotate(45deg);
+}
+
+/* Label giữ nguyên */
 #welcomePopup label[for="dontShowAgain"] {
     cursor: pointer;
     color: #253D4E;
@@ -115,20 +137,4 @@
 
 #welcomePopup label[for="dontShowAgain"]:hover {
     color: #3BB77E;
-}
-
-/* Make the checkbox area more interactive */
-#welcomePopup .modal-footer small {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 16px;
-    border-radius: 25px;
-    background-color: rgba(59, 183, 126, 0.1);
-    transition: all 0.3s ease;
-}
-
-#welcomePopup .modal-footer small:hover {
-    background-color: rgba(59, 183, 126, 0.15);
-    transform: translateY(-1px);
 }
