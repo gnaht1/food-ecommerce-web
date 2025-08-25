@@ -35,7 +35,7 @@ Context:
 # 2. Implementation
 
 <p align="center">
-  <img src="./Media/flow_chart_food_ecommerce.png" alt="Flow Chart"/>
+  <img src="./media/flow_chart_food_ecommerce.png" alt="Flow Chart"/>
   <b>Figure 1:</b> Flow chart <br>
 </p>
 
@@ -51,7 +51,7 @@ Context:
 At the beginning of the project, I defined the scope, user stories, and target features. Wireframes and an entity-relationship diagram (ERD) were prepared to map out how users, vendors, products, and orders would interact in the system. 
 
 <p align="center">
-  <img src="./Media/erd.png" alt="ERD"/>
+  <img src="./media/erd.png" alt="ERD"/>
   <b>Figure 2:</b> ERD <br>
 </p>
 
@@ -76,7 +76,7 @@ Core data models were designed in models.py for Users, Vendors, Products, Catego
 The Django admin site was customized to manage products, vendors,  orders, etc effectively. Specific admin views, filters, and inline configurations were added to simplify management for administrators.
 
 <p align="center">
-  <img src="./Media/django_admin.png" alt="admin_site"/>
+  <img src="./media/django_admin.png" alt="admin_site"/>
   <b>Figure 3:</b> Django Admin Site <br>
 </p>
 
@@ -114,7 +114,7 @@ A dedicated vendor dashboard was developed, enabling vendors to:
 * Review comments about products.
 
 <p align="center">
-  <img src="./Media/vendor.png" alt="Vendor"/>
+  <img src="./media/vendor.png" alt="Vendor"/>
   <b>Figure 4:</b> Vendor Dashboard <br>
 </p>
 
@@ -130,11 +130,11 @@ Stripe was integrated as the payment gateway. Users can securely pay for their o
   * `"ok"` → chatbot automatically adds suggested ingredients to the cart.  
 
 <p align="center">
-  <img src="./Media/chatbot1.png" alt="chabot1"/> <br>
+  <img src="./media/chatbot1.png" alt="chabot1"/> <br>
   <b>Figure 5:</b> Recommand food ingredients and its recipe. <br>
 </p>
 <p align="center">
-  <img src="./Media/chatbot2.png" alt="chabot2"/> <br>
+  <img src="./media/chatbot2.png" alt="chabot2"/> <br>
   <b>Figure 6:</b> Automatically adds suggested ingredients to the cart <br>
 </p>
 
