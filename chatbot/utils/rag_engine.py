@@ -2,6 +2,7 @@ import ast
 import csv
 import os
 import re
+import unicodedata
 from dataclasses import dataclass
 from functools import lru_cache
 
@@ -68,6 +69,83 @@ FOOD_QUERY_TRAILING_PATTERN = re.compile(
     re.IGNORECASE,
 )
 
+VIETNAMESE_FOOD_PHRASES = {
+    "banh mi": "sandwich",
+    "banh xeo": "vietnamese crepe",
+    "banh cuon": "steamed rice rolls",
+    "banh canh": "tapioca noodle soup",
+    "bun bo hue": "spicy beef noodle soup",
+    "bun bo": "beef noodle soup",
+    "bun cha": "grilled pork noodles",
+    "bun thit nuong": "grilled pork noodles",
+    "bun rieu": "crab noodle soup",
+    "bo kho": "beef stew",
+    "bo luc lac": "shaking beef",
+    "ca hoi": "salmon",
+    "ca kho": "braised fish",
+    "canh chua": "sour soup",
+    "cha gio": "egg rolls",
+    "chao ga": "chicken porridge",
+    "com chien": "fried rice",
+    "com ga": "chicken rice",
+    "com suon": "pork chop rice",
+    "com tam": "broken rice pork",
+    "ga chien": "fried chicken",
+    "ga kho": "braised chicken",
+    "ga luoc": "boiled chicken",
+    "ga nuong": "grilled chicken",
+    "ga ran": "fried chicken",
+    "goi cuon": "spring rolls",
+    "hai san": "seafood",
+    "lau hai san": "seafood hot pot",
+    "mi quang": "turmeric noodle soup",
+    "mi xao": "fried noodles",
+    "pho bo": "beef noodle soup",
+    "pho ga": "chicken noodle soup",
+    "suon nuong": "grilled pork chop",
+    "thit bo": "beef",
+    "thit ga": "chicken",
+    "thit heo": "pork",
+    "thit heo kho": "braised pork",
+    "thit kho": "braised pork",
+    "thit nuong": "grilled pork",
+}
+
+VIETNAMESE_FOOD_WORDS = {
+    "bo": "beef",
+    "bun": "noodles",
+    "ca": "fish",
+    "cai": "cabbage",
+    "cay": "spicy",
+    "chien": "fried",
+    "chua": "sour",
+    "com": "rice",
+    "cua": "crab",
+    "ga": "chicken",
+    "goi": "salad",
+    "hai san": "seafood",
+    "heo": "pork",
+    "kho": "braised",
+    "lau": "hot pot",
+    "lon": "pork",
+    "luoc": "boiled",
+    "mi": "noodles",
+    "muc": "squid",
+    "nam": "mushroom",
+    "ngheu": "clam",
+    "nuong": "grilled",
+    "pho": "noodle soup",
+    "rau": "vegetable",
+    "salad": "salad",
+    "sup": "soup",
+    "suon": "pork chop",
+    "thit": "meat",
+    "tom": "shrimp",
+    "trung": "egg",
+    "vit": "duck",
+    "xao": "stir fried",
+}
+
 
 @dataclass
 class SearchResult:
@@ -81,6 +159,12 @@ def _clean_text(value):
     return re.sub(r"\s+", " ", str(value)).strip()
 
 
+def _strip_accents(value):
+    normalized = unicodedata.normalize("NFD", value)
+    stripped = "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+    return stripped.replace("đ", "d").replace("Đ", "D")
+
+
 def _clean_extracted_query(value):
     text = _clean_text(value)
     text = re.sub(rf"^[^\w{VIETNAMESE_WORD_CHARS}]+", "", text, flags=re.IGNORECASE)
@@ -89,13 +173,34 @@ def _clean_extracted_query(value):
     return text or _clean_text(value)
 
 
+def translate_vietnamese_food_query(query):
+    text = _clean_text(query)
+    if not text:
+        return text
+
+    normalized = _strip_accents(text).lower()
+    normalized = re.sub(r"[^a-z0-9\s]", " ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+
+    translated = normalized
+    for phrase, english in sorted(VIETNAMESE_FOOD_PHRASES.items(), key=lambda item: len(item[0]), reverse=True):
+        translated = re.sub(rf"\b{re.escape(phrase)}\b", english, translated)
+
+    words = []
+    for word in translated.split():
+        words.extend(VIETNAMESE_FOOD_WORDS.get(word, word).split())
+
+    return " ".join(words).strip() or text
+
+
 def normalize_food_query(message):
     """
     Convert conversational food intents into the actual recipe/product query.
 
     Examples:
     - "tao muốn ăn sandwich" -> "sandwich"
-    - "tôi thèm ăn món gà" -> "gà"
+    - "tôi thèm ăn món gà" -> "chicken"
+    - "tôi muốn ăn phở bò" -> "beef noodle soup"
     - "cách làm pasta" -> "pasta"
     """
     text = _clean_text(message)
@@ -105,9 +210,9 @@ def normalize_food_query(message):
     for pattern in FOOD_QUERY_PREFIX_PATTERNS:
         match = pattern.match(text)
         if match:
-            return _clean_extracted_query(match.group("query"))
+            return translate_vietnamese_food_query(_clean_extracted_query(match.group("query")))
 
-    return text
+    return translate_vietnamese_food_query(text)
 
 
 def _parse_ingredients(value):
