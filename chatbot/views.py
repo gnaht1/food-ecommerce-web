@@ -1,321 +1,173 @@
 # chatbot/views.py
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
 import json
 import re
-from fuzzywuzzy import process
-from core.models import Product
+
 from django.conf import settings
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 
-# Đảm bảo import đầy đủ các hàm cần thiết
-from .utils.data_loader import (
-    get_dish_details,
-    get_alternative_dish,
+from core.models import Product
+
+from .utils.gemini_client import get_enhanced_dish_suggestion, get_grounded_rag_answer
+from .utils.rag_engine import (
+    MIN_RECIPE_SCORE,
+    build_context,
+    deterministic_recipe_reply,
+    is_alternative_request,
+    match_products_for_ingredients,
+    retrieve_products,
+    retrieve_recipes,
 )
-from .utils.gemini_client import (
-    get_gemini_suggestion,
-    get_enhanced_dish_suggestion,
-    extract_dish_name_from_query,
-    is_asking_for_alternative,
-)
-
-# Biến lưu trữ session của người dùng
-user_session_data = {}
-
-MIN_SCORE = 60
 
 
 def parse_ingredients(text):
-    """
-    Tìm đoạn chứa danh sách nguyên liệu sau từ 'chuẩn bị' hoặc dấu ':' rồi split bằng dấu phẩy.
-    """
-    m = re.search(r"chuẩn bị[:\-]\s*(.+?)(?:\.|$)", text, re.IGNORECASE)
-    if not m:
+    """Extract ingredients from the old Gemini response shape used by chat_endpoint."""
+    match = re.search(r"chuẩn bị[:\-]\s*(.+?)(?:\.|$)", text, re.IGNORECASE)
+    if not match:
         return []
-    items = [i.strip() for i in m.group(1).split(",") if i.strip()]
-    return items
+    return [item.strip() for item in match.group(1).split(",") if item.strip()]
 
 
 def chatbot_view(request):
     return render(request, "chatbot/chat_interface.html")
 
 
+def _get_product_image_url(request, product):
+    image_path = product.image.url if getattr(product, "image", None) else settings.STATIC_URL + "images/default_product.png"
+    return request.build_absolute_uri(image_path)
+
+
+def _cart_item_from_product(request, product):
+    return {
+        "title": product.title,
+        "qty": 1,
+        "price": str(product.price),
+        "image": _get_product_image_url(request, product),
+        "pid": str(product.pid),
+    }
+
+
+def _add_pending_products_to_cart(request):
+    pending_ids = request.session.get("pending_product_ids", [])
+    missing = request.session.get("pending_missing_ingredients", [])
+    if not pending_ids:
+        request.session.pop("pending_ingredients", None)
+        request.session.pop("pending_missing_ingredients", None)
+        return "Hiện chưa có sản phẩm phù hợp để thêm vào giỏ hàng."
+
+    cart = request.session.get("cart_data_obj", {})
+    products = Product.objects.filter(id__in=pending_ids)
+    product_by_id = {product.id: product for product in products}
+    added = []
+
+    for product_id in pending_ids:
+        product = product_by_id.get(product_id)
+        if not product:
+            continue
+        key = str(product.id)
+        if key in cart:
+            cart[key]["qty"] = int(cart[key].get("qty", 1)) + 1
+        else:
+            cart[key] = _cart_item_from_product(request, product)
+        added.append(product.title)
+
+    request.session["cart_data_obj"] = cart
+    request.session.pop("pending_ingredients", None)
+    request.session.pop("pending_product_ids", None)
+    request.session.pop("pending_missing_ingredients", None)
+    request.session.modified = True
+
+    if not added:
+        return "Tôi không tìm thấy sản phẩm phù hợp để thêm vào giỏ hàng."
+
+    reply = f"Đã thêm vào giỏ: {', '.join(added)}."
+    if missing:
+        reply += f" Chưa thêm được: {', '.join(missing[:10])}."
+    return reply
+
+
+def _session_key(session_id, suffix):
+    return f"chatbot_{session_id}_{suffix}"
+
+
+def _generate_rag_reply(user_message, recipe_results, product_results, product_matches, missing):
+    recipe_context, product_context = build_context(recipe_results, product_results)
+    try:
+        return get_grounded_rag_answer(user_message, recipe_context, product_context)
+    except Exception as exc:
+        print(f"[CHAT] Gemini unavailable, using deterministic RAG fallback: {exc}")
+        return deterministic_recipe_reply(
+            recipe_results[0].item,
+            product_matches=product_matches,
+            missing=missing,
+        )
+
+
 @csrf_exempt
 def get_chatbot_response(request):
-    if request.method == "POST":
-        # Đọc payload JSON trước để lấy message và session_id
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            return JsonResponse({"reply": "Dữ liệu gửi lên không hợp lệ."}, status=400)
-        user_msg = data.get("message", "").strip()
-        clean_response = data.get("clean_response", False)
-        session_id = data.get("session_id", "default")
+    if request.method != "POST":
+        return JsonResponse({"reply": "Yêu cầu không hợp lệ."}, status=400)
 
-        # Nếu không có message thì hỏi lại
-        if not user_msg:
-            return JsonResponse({"reply": "Bạn muốn hỏi về món ăn nào nhỉ?"})
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({"reply": "Dữ liệu gửi lên không hợp lệ."}, status=400)
 
-        # 1) Nếu đang chờ 'ok' để thêm nguyên liệu vào cart
-        pending = request.session.get("pending_ingredients")
-        if pending and user_msg.lower() == "ok":
-            cart = request.session.get("cart_data_obj", {})
-            all_titles = list(Product.objects.values_list("title", flat=True))
-            added = []
-            for ing in pending:
-                match, score = process.extractOne(ing, all_titles)
-                if score >= MIN_SCORE:
-                    prod = Product.objects.get(title=match)
-                    # dùng URL từ Product.image hoặc fallback placeholder
-                    if hasattr(prod, "image") and prod.image:
-                        img_path = prod.image.url  # nếu là ImageField
-                    else:
-                        img_path = settings.STATIC_URL + "images/default_product.png"
-                    img_url = request.build_absolute_uri(img_path)
-                    cart[str(prod.id)] = {
-                        "title": prod.title,
-                        "qty": 1,
-                        "price": str(prod.price),
-                        "image": img_url,
-                        "pid": prod.pid,
-                    }
-                    added.append(match)
-            request.session["cart_data_obj"] = cart
-            request.session.pop("pending_ingredients")
-            return JsonResponse({"reply": f"Đã thêm vào giỏ: {', '.join(added)}."})
-        # 2) Mặc định: xử lý gọi Gemini như trước
-        try:
-            data = json.loads(request.body)
-            user_message_original = data.get("message", "").strip()
-            clean_response = data.get("clean_response", False)
-            session_id = data.get("session_id", "default")  # Lấy session ID
-        except json.JSONDecodeError:
-            return JsonResponse(
-                {"reply": "Lỗi: Dữ liệu gửi lên không hợp lệ."}, status=400
-            )
+    user_message = data.get("message", "").strip()
+    clean_response = data.get("clean_response", False)
+    session_id = data.get("session_id") or request.session.session_key or "default"
 
-        if not user_message_original:
-            return JsonResponse({"reply": "Bạn muốn hỏi về món ăn nào nhỉ?"})
+    if not user_message:
+        return JsonResponse({"reply": "Bạn muốn hỏi về món ăn nào nhỉ?", "session_id": session_id})
 
-        bot_reply = ""
+    if user_message.lower() == "ok":
+        return JsonResponse({"reply": _add_pending_products_to_cart(request), "session_id": session_id})
 
-        # In ra log để debug
-        print(f"[CHAT] Câu hỏi người dùng: '{user_message_original}'")
+    excluded_titles = request.session.get(_session_key(session_id, "suggested_titles"), [])
+    original_query = request.session.get(_session_key(session_id, "original_query"), user_message)
+    retrieval_query = original_query if is_alternative_request(user_message) else user_message
+    exclusions = excluded_titles if is_alternative_request(user_message) else []
 
-        # Kiểm tra xem người dùng có yêu cầu món khác không
-        if is_asking_for_alternative(user_message_original):
-            # Lấy thông tin món trước đó và query gốc từ session
-            previous_dish = user_session_data.get(session_id, {}).get("last_dish")
-            original_query = user_session_data.get(session_id, {}).get("original_query")
+    recipe_results = retrieve_recipes(retrieval_query, excluded_titles=exclusions)
+    if not recipe_results or recipe_results[0].score < MIN_RECIPE_SCORE:
+        reply = "Xin lỗi, tôi chưa có đủ thông tin trong dữ liệu món ăn để trả lời câu hỏi này."
+        return JsonResponse({"reply": reply, "session_id": session_id})
 
-            if previous_dish and original_query:
-                print(f"[CHAT] Người dùng yêu cầu món khác thay cho '{previous_dish}'")
-                print(f"[CHAT] Query gốc: '{original_query}'")
+    selected_recipe = recipe_results[0].item
+    ingredients = selected_recipe.get("ingredients_list", [])
+    product_results = retrieve_products(" ".join([retrieval_query, *ingredients]))
+    product_matches, missing = match_products_for_ingredients(ingredients)
 
-                # Tìm món thay thế với độ tương đồng thấp hơn
-                dish_details = get_alternative_dish(
-                    previous_dish=previous_dish,
-                    original_query=original_query,
-                    min_similarity=40,  # Độ tương đồng tối thiểu
-                    max_similarity=75,  # Độ tương đồng tối đa
-                )
+    request.session["pending_ingredients"] = ingredients
+    request.session["pending_product_ids"] = [match["product"]["id"] for match in product_matches]
+    request.session["pending_missing_ingredients"] = missing
+    request.session[_session_key(session_id, "original_query")] = original_query if is_alternative_request(user_message) else user_message
+    request.session[_session_key(session_id, "suggested_titles")] = [*excluded_titles, selected_recipe["title"]][-20:]
+    request.session[_session_key(session_id, "last_recipe")] = selected_recipe["title"]
+    request.session.modified = True
 
-                if "error" in dish_details:
-                    bot_reply = dish_details["error"]
-                    print(f"[CHAT] Lỗi khi tìm món thay thế: {bot_reply}")
-                elif "not_found" in dish_details:
-                    bot_reply = "Xin lỗi, tôi không tìm được món thay thế phù hợp."
-                    print(f"[CHAT] Không tìm thấy món thay thế")
-                elif "title" in dish_details:
-                    print(f"[CHAT] Đã tìm thấy món thay thế: {dish_details['title']}")
+    reply = _generate_rag_reply(user_message, recipe_results, product_results, product_matches, missing)
+    if clean_response and reply:
+        reply = re.sub(r"[\[\]\'\"{}()\\]", "", reply)
 
-                    # Lưu món ăn mới vào session
-                    user_session_data[session_id]["last_dish"] = dish_details["title"]
-
-                    # Xử lý format nguyên liệu và hướng dẫn giống như món thông thường
-                    ingredients_text = ""
-                    if "ingredients" in dish_details and dish_details["ingredients"]:
-                        # Clean up the ingredients string
-                        ingredients = str(dish_details["ingredients"])
-                        ingredients = ingredients.replace("[", "").replace("]", "")
-                        ingredients = ingredients.replace('"', "").replace("'", "")
-
-                        ingredients_list = [
-                            i.strip() for i in ingredients.replace(";", ",").split(",")
-                        ]
-                        ingredients_text = "\n".join(
-                            [
-                                f"• {ingredient.strip()}"
-                                for ingredient in ingredients_list
-                                if ingredient.strip()
-                            ]
-                        )
-
-                    # Format instructions
-                    instructions_text = ""
-                    if "instructions" in dish_details and dish_details["instructions"]:
-                        if isinstance(dish_details["instructions"], list):
-                            instructions_text = "\n".join(
-                                [
-                                    f"{i + 1}. {step}"
-                                    for i, step in enumerate(
-                                        dish_details["instructions"]
-                                    )
-                                ]
-                            )
-                        else:
-                            instructions = str(dish_details["instructions"])
-                            for indicator in ["Bước ", "bước "]:
-                                instructions = instructions.replace(
-                                    indicator, "\n" + indicator
-                                )
-                            instructions_text = instructions
-
-                    # Construct reply
-                    bot_reply = (
-                        f"Tôi đề xuất món **{dish_details['title']}** thay thế. Để nấu món này, bạn cần:\n\n"
-                        f"**Nguyên liệu:**\n{ingredients_text}\n\n"
-                        f"**Hướng dẫn thực hiện:**\n{instructions_text}"
-                    )
-            else:
-                bot_reply = (
-                    "Bạn muốn tôi gợi ý món gì? Hãy cho tôi biết loại món ăn bạn thích."
-                )
-        else:
-            # Xử lý câu hỏi thông thường
-            dish_to_search = extract_dish_name_from_query(user_message_original)
-
-            if not dish_to_search:
-                print(f"Không trích xuất được tên món ăn từ '{user_message_original}'.")
-                bot_reply = "Xin lỗi, tôi chưa hiểu rõ bạn muốn hỏi về món ăn nào. Bạn có thể vui lòng cho biết tên món ăn cụ thể được không?"
-            else:
-                print(f"[CHAT] Tìm kiếm món: '{dish_to_search}'")
-                dish_details = get_dish_details(dish_to_search)
-                print(f"[CHAT] Kết quả tìm kiếm: {dish_details.keys()}")
-
-                if "error" in dish_details:
-                    bot_reply = dish_details["error"]
-                    print(f"[CHAT] Lỗi: {bot_reply}")
-                elif "not_found" in dish_details:
-                    if dish_to_search.lower() == user_message_original.lower():
-                        bot_reply = f"Xin lỗi, tôi không tìm thấy thông tin cho món '{dish_to_search}' trong cơ sở dữ liệu của mình."
-                    else:
-                        bot_reply = f"Xin lỗi, tôi không tìm thấy thông tin cho món '{dish_to_search}' (được hiểu từ câu '{user_message_original}') trong cơ sở dữ liệu của mình."
-                    print(f"[CHAT] Không tìm thấy món: {bot_reply}")
-                elif "title" in dish_details:
-                    print(f"[CHAT] Tìm thấy món ăn: {dish_details['title']}")
-
-                    # Lưu món ăn và truy vấn gốc vào session
-                    if session_id not in user_session_data:
-                        user_session_data[session_id] = {}
-                    user_session_data[session_id]["last_dish"] = dish_details["title"]
-                    user_session_data[session_id]["original_query"] = (
-                        user_message_original
-                    )
-
-                    # Format ingredients với line breaks và lưu thẳng list vào session
-                    ingredients_list = []
-                    ingredients_text = ""
-                    if "ingredients" in dish_details and dish_details["ingredients"]:
-                        raw = str(dish_details["ingredients"])
-                        raw = raw.strip("[]").replace("'", "").replace('"', "")
-                        ingredients_list = [
-                            i.strip()
-                            for i in raw.replace(";", ",").split(",")
-                            if i.strip()
-                        ]
-                        ingredients_text = "\n".join(
-                            [f"• {i}" for i in ingredients_list]
-                        )
-
-                    # LƯU thẳng danh sách vào session để đợi 'ok'
-                    if ingredients_list:
-                        request.session["pending_ingredients"] = ingredients_list
-
-                    # Format instructions với line breaks
-                    instructions_text = ""
-                    if "instructions" in dish_details and dish_details["instructions"]:
-                        if isinstance(dish_details["instructions"], list):
-                            instructions_text = "\n".join(
-                                [
-                                    f"{i + 1}. {step}"
-                                    for i, step in enumerate(
-                                        dish_details["instructions"]
-                                    )
-                                ]
-                            )
-                        else:
-                            instructions = str(dish_details["instructions"])
-                            for indicator in ["Bước ", "bước "]:
-                                instructions = instructions.replace(
-                                    indicator, "\n" + indicator
-                                )
-                            instructions_text = instructions
-
-                    # Construct the final formatted reply
-                    bot_reply = (
-                        f"OK bạn! Để nấu món **{dish_details['title']}**, bạn cần:\n\n"
-                        f"**Nguyên liệu:**\n{ingredients_text}\n\n"
-                        f"**Hướng dẫn thực hiện:**\n{instructions_text}"
-                    )
-                    # hỏi user có muốn thêm cart không
-                    if ingredients_list:
-                        bot_reply += "\n\nBạn có muốn thêm những nguyên liệu này vào giỏ hàng không? (gõ 'ok' để thêm)"
-                else:
-                    bot_reply = f"Đã có lỗi xảy ra khi tìm thông tin món '{dish_to_search}'. Vui lòng thử lại."
-
-        # Làm sạch kết quả trả về nếu được yêu cầu
-        if clean_response and bot_reply:
-            bot_reply = re.sub(r"[\[\]\'\"\{\}\(\)\\]", "", bot_reply)
-
-        return JsonResponse({"reply": bot_reply, "session_id": session_id})
-
-    return JsonResponse({"reply": "Yêu cầu không hợp lệ."}, status=400)
+    return JsonResponse({"reply": reply, "session_id": session_id})
 
 
 @csrf_exempt
 def chat_endpoint(request):
     user_msg = request.POST.get("message", "").strip()
-    # bước 1: nếu đang chờ 'ok' để add cart
-    pending = request.session.get("pending_ingredients")
-    if pending and user_msg.lower() == "ok":
-        added = []
-        cart = request.session.get("cart_data_obj", {})
-        # lấy toàn bộ title product để fuzzy match
-        all_titles = list(Product.objects.values_list("title", flat=True))
-        for ing in pending:
-            match, score = process.extractOne(ing, all_titles)
-            if score >= MIN_SCORE:
-                prod = Product.objects.get(title=match)
-                # dùng URL từ Product.image hoặc fallback placeholder
-                if hasattr(prod, "image") and prod.image:
-                    img_path = prod.image.url
-                else:
-                    img_path = settings.STATIC_URL + "images/default_product.png"
-                img_url = request.build_absolute_uri(img_path)
-                cart[str(prod.id)] = {
-                    "title": prod.title,
-                    "qty": 1,
-                    "price": str(prod.price),
-                    "image": img_url,
-                    "pid": prod.pid,
-                }
-                added.append(match)
-        request.session["cart_data_obj"] = cart
-        # xóa pending
-        request.session.pop("pending_ingredients")
-        return JsonResponse({"reply": f"Đã thêm vào giỏ: {', '.join(added)}."})
-    # bước 2: gọi Gemini để trả lời bình thường
-    # giả sử bạn có 2 param dish_name_from_dataset, ingredients_list_str từ bước tìm dataset
+    if request.session.get("pending_product_ids") and user_msg.lower() == "ok":
+        return JsonResponse({"reply": _add_pending_products_to_cart(request)})
+
     dish_name = request.POST.get("dish_name", "")
     ing_str = request.POST.get("ingredients_list_str", "")
     suggestion = get_enhanced_dish_suggestion(user_msg, dish_name, ing_str)
-    # tách nguyên liệu
-    ings = parse_ingredients(suggestion)
-    if ings:
-        # lưu vào session và hỏi thêm
-        request.session["pending_ingredients"] = ings
+    ingredients = parse_ingredients(suggestion)
+    if ingredients:
+        product_matches, missing = match_products_for_ingredients(ingredients)
+        request.session["pending_ingredients"] = ingredients
+        request.session["pending_product_ids"] = [match["product"]["id"] for match in product_matches]
+        request.session["pending_missing_ingredients"] = missing
         suggestion += "\n\nBạn có muốn thêm những nguyên liệu này vào giỏ hàng không? (gõ 'ok' để thêm)"
     return JsonResponse({"reply": suggestion})

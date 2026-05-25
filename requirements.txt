@@ -38,6 +38,7 @@ fuzzywuzzy             # for fuzzy string matching
 python-Levenshtein     # optional but improves fuzzywuzzy performance
 pandas                 # for data processing
 numpy                  # data processing support
+scikit-learn           # local TF-IDF retrieval for chatbot RAG
 
 # WSGI server for production
 gunicorn

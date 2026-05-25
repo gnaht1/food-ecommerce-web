@@ -46,6 +46,29 @@ def get_gemini_suggestion(prompt_text):
         return f"Xin lỗi, đã có lỗi xảy ra khi kết nối với AI: {e}"
 
 
+
+def get_grounded_rag_answer(user_input, recipe_context, product_context):
+    """
+    Generate a response from retrieved local context only.
+    """
+    prompt = f"""
+    Bạn là trợ lý nấu ăn cho một website bán nguyên liệu.
+    Chỉ dùng thông tin trong CONTEXT bên dưới. Không tự thêm nguyên liệu, bước nấu, hoặc sản phẩm ngoài context.
+    Nếu context không đủ, hãy nói ngắn gọn rằng bạn chưa có đủ thông tin.
+    Trả lời bằng tiếng Việt, rõ ràng các phần: tên món, nguyên liệu, hướng dẫn thực hiện.
+    Nếu có sản phẩm phù hợp, hỏi người dùng có muốn thêm vào giỏ hàng bằng cách gõ "ok" không.
+
+    USER QUESTION:
+    {user_input}
+
+    RECIPE CONTEXT:
+    {recipe_context}
+
+    PRODUCT CONTEXT:
+    {product_context}
+    """
+    return _generate_content(prompt).strip()
+
 def get_enhanced_dish_suggestion(
     user_input, dish_name_from_dataset, ingredients_list_str
 ):
