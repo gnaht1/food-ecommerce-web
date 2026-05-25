@@ -111,6 +111,7 @@ def add_product(request):
             new_form.vendor = Vendor.objects.get(user=request.user)
             new_form.save()
             form.save_m2m()
+            messages.success(request, "Product Added Successfully")
             return redirect("useradmin:products")
     else:
         form = AddProductForm()
@@ -129,6 +130,7 @@ def edit_product(request, pid):
             new_form.vendor = Vendor.objects.get(user=request.user)
             new_form.save()
             form.save_m2m()
+            messages.success(request, "Product Updated Successfully")
             return redirect("useradmin:edit_product", product.pid)
     else:
         form = AddProductForm(instance=product)

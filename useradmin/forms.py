@@ -32,8 +32,13 @@ class AddProductForm(forms.ModelForm):
             'tags',
             'digital',
             'category',
+            'product_status',
         ]
 
         widgets = {
         # 'mdf': DateTimePickerInput
-    }
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['product_status'].widget.attrs.update({'class': 'form-select'})

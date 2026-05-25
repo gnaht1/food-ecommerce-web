@@ -119,4 +119,9 @@ admin.site.register(CartOrderItems, CartOrderItemsAdmin)
 admin.site.register(ProductReview, ProductReviewAdmin)
 admin.site.register(Wishlist, wishlistAdmin)
 admin.site.register(Address, AdressAdmin)
-admin.site.register(Coupon)
+class CouponAdmin(admin.ModelAdmin):
+    list_display = ["code", "discount", "active"]
+    search_fields = ["code"]
+
+
+admin.site.register(Coupon, CouponAdmin)
