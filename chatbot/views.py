@@ -16,6 +16,7 @@ from .utils.rag_engine import (
     deterministic_recipe_reply,
     is_alternative_request,
     match_products_for_ingredients,
+    normalize_food_query,
     retrieve_products,
     retrieve_recipes,
 )
@@ -125,9 +126,11 @@ def get_chatbot_response(request):
         return JsonResponse({"reply": _add_pending_products_to_cart(request), "session_id": session_id})
 
     excluded_titles = request.session.get(_session_key(session_id, "suggested_titles"), [])
-    original_query = request.session.get(_session_key(session_id, "original_query"), user_message)
-    retrieval_query = original_query if is_alternative_request(user_message) else user_message
-    exclusions = excluded_titles if is_alternative_request(user_message) else []
+    normalized_query = normalize_food_query(user_message)
+    is_alternative = is_alternative_request(user_message)
+    original_query = request.session.get(_session_key(session_id, "original_query"), normalized_query)
+    retrieval_query = original_query if is_alternative else normalized_query
+    exclusions = excluded_titles if is_alternative else []
 
     recipe_results = retrieve_recipes(retrieval_query, excluded_titles=exclusions)
     if not recipe_results or recipe_results[0].score < MIN_RECIPE_SCORE:
@@ -142,7 +145,7 @@ def get_chatbot_response(request):
     request.session["pending_ingredients"] = ingredients
     request.session["pending_product_ids"] = [match["product"]["id"] for match in product_matches]
     request.session["pending_missing_ingredients"] = missing
-    request.session[_session_key(session_id, "original_query")] = original_query if is_alternative_request(user_message) else user_message
+    request.session[_session_key(session_id, "original_query")] = original_query if is_alternative else normalized_query
     request.session[_session_key(session_id, "suggested_titles")] = [*excluded_titles, selected_recipe["title"]][-20:]
     request.session[_session_key(session_id, "last_recipe")] = selected_recipe["title"]
     request.session.modified = True

@@ -24,6 +24,50 @@ MIN_RECIPE_SCORE = 0.08
 MIN_PRODUCT_SCORE = 0.05
 MIN_FUZZY_SCORE = 60
 
+VIETNAMESE_WORD_CHARS = (
+    "a-zA-Z0-9_"
+    "àáảãạâầấẩẫậăằắẳẵặ"
+    "èéẻẽẹêềếểễệ"
+    "đ"
+    "ìíỉĩị"
+    "òóỏõọôồốổỗộơờớởỡợ"
+    "ùúủũụưừứửữự"
+    "ỳýỷỹỵ"
+)
+
+FOOD_QUERY_PREFIX_PATTERNS = [
+    re.compile(
+        r"^(?:tao|tôi|toi|mình|minh|em|anh|chị|chi|tớ|to|bạn|ban|mk|m)?\s*"
+        r"(?:đang\s+|dang\s+)?(?:muốn|muon|thèm|them|cần|can|định|dinh)\s+"
+        r"(?:ăn|an|nấu|nau|làm|lam|mua|order|đặt|dat)\s+"
+        r"(?:món\s+|mon\s+)?(?P<query>.+)$",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^(?:tao|tôi|toi|mình|minh|em|anh|chị|chi|tớ|to|bạn|ban|mk|m)?\s*"
+        r"(?:muốn|muon|thèm|them)\s+"
+        r"(?:món\s+|mon\s+)?(?P<query>.+)$",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^(?:cho|gợi ý|goi y|suggest|recommend)\s+"
+        r"(?:tôi|toi|mình|minh|em|anh|chị|chi|tao|tớ|to|m)?\s*"
+        r"(?:một\s+|mot\s+|vài\s+|vai\s+)?(?:món\s+|mon\s+)?"
+        r"(?P<query>.+)$",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^(?:cách|cach|công thức|cong thuc)\s+"
+        r"(?:làm|lam|nấu|nau)\s+(?:món\s+|mon\s+)?(?P<query>.+)$",
+        re.IGNORECASE,
+    ),
+]
+
+FOOD_QUERY_TRAILING_PATTERN = re.compile(
+    r"(?:(?:\s+(?:đi|di|nhé|nhe|nha|với|voi|ạ|a|please|pls))+|[.!?。]+)$",
+    re.IGNORECASE,
+)
+
 
 @dataclass
 class SearchResult:
@@ -35,6 +79,35 @@ def _clean_text(value):
     if value is None:
         return ""
     return re.sub(r"\s+", " ", str(value)).strip()
+
+
+def _clean_extracted_query(value):
+    text = _clean_text(value)
+    text = re.sub(rf"^[^\w{VIETNAMESE_WORD_CHARS}]+", "", text, flags=re.IGNORECASE)
+    text = FOOD_QUERY_TRAILING_PATTERN.sub("", text).strip()
+    text = re.sub(r"^(?:món|mon)\s+", "", text, flags=re.IGNORECASE).strip()
+    return text or _clean_text(value)
+
+
+def normalize_food_query(message):
+    """
+    Convert conversational food intents into the actual recipe/product query.
+
+    Examples:
+    - "tao muốn ăn sandwich" -> "sandwich"
+    - "tôi thèm ăn món gà" -> "gà"
+    - "cách làm pasta" -> "pasta"
+    """
+    text = _clean_text(message)
+    if not text or is_alternative_request(text):
+        return text
+
+    for pattern in FOOD_QUERY_PREFIX_PATTERNS:
+        match = pattern.match(text)
+        if match:
+            return _clean_extracted_query(match.group("query"))
+
+    return text
 
 
 def _parse_ingredients(value):
