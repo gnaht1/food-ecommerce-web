@@ -353,7 +353,7 @@ PAYPAL_TEST = True
 STRIPE_SECRET_KEY = env("STRIPE_SECRET_KEY")
 STRIPE_PUBLIC_KEY = env("STRIPE_PUBLIC_KEY")
 
-GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY = env.str("GOOGLE_API_KEY", default=env.str("GEMINI_API_KEY", default=""))
 
 # Cấu hình bảo mật cho production
 SECURE_BROWSER_XSS_FILTER = True

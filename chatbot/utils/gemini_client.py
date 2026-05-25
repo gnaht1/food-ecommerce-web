@@ -1,16 +1,30 @@
 # utils/gemini_client.py (ví dụ)
-import google.generativeai as genai
+from google import genai
 from django.conf import settings
 import re
 from fuzzywuzzy import process
 
-genai.configure(api_key=settings.GOOGLE_API_KEY)
-
-# Khởi tạo model
-model = genai.GenerativeModel("gemini-1.5-flash-latest")
+GEMINI_MODEL = "gemini-1.5-flash-latest"
 
 # Thêm biến toàn cục để lưu trữ danh sách món ăn
 all_dish_names = []
+
+
+def _get_gemini_client():
+    if not settings.GOOGLE_API_KEY:
+        return None
+    return genai.Client(api_key=settings.GOOGLE_API_KEY)
+
+
+def _generate_content(prompt_text):
+    client = _get_gemini_client()
+    if not client:
+        raise ValueError("API Key của Google chưa được cấu hình.")
+    response = client.models.generate_content(
+        model=GEMINI_MODEL,
+        contents=prompt_text,
+    )
+    return response.text
 
 
 def load_dish_names(dish_names):
@@ -26,8 +40,7 @@ def get_gemini_suggestion(prompt_text):
     if not settings.GOOGLE_API_KEY:
         return "Lỗi: API Key của Google chưa được cấu hình."
     try:
-        response = model.generate_content(prompt_text)
-        return response.text
+        return _generate_content(prompt_text)
     except Exception as e:
         print(f"Lỗi khi gọi Gemini API: {e}")
         return f"Xin lỗi, đã có lỗi xảy ra khi kết nối với AI: {e}"
@@ -94,10 +107,10 @@ def extract_dish_name_from_query(user_query, dish_titles_from_dataset=None):
     clean_query = user_query.strip()
 
     try:
-        if not model or not settings.GOOGLE_API_KEY:
+        if not settings.GOOGLE_API_KEY:
             # Gemini không khả dụng, thử tìm trực tiếp từ câu hỏi
             print("Gemini không khả dụng, thử tìm gần đúng...")
-            return find_closest_dish_match(clean_query)
+            return find_closest_dish_match(clean_query) or clean_query
 
         prompt = f"""
         Người dùng đã nhập câu sau: "{clean_query}".
@@ -112,8 +125,7 @@ def extract_dish_name_from_query(user_query, dish_titles_from_dataset=None):
         Tên món ăn cần trích xuất là:
         """
 
-        response = model.generate_content(prompt)
-        extracted_name = response.text.strip()
+        extracted_name = _generate_content(prompt).strip()
 
         # Xóa các dấu câu không cần thiết có thể Gemini trả về
         extracted_name = re.sub(
@@ -144,7 +156,7 @@ def extract_dish_name_from_query(user_query, dish_titles_from_dataset=None):
     except Exception as e:
         print(f"Lỗi khi trích xuất tên món ăn: {e}")
         # Thử phương pháp dự phòng
-        return find_closest_dish_match(clean_query)
+        return find_closest_dish_match(clean_query) or clean_query
 
 
 def is_asking_for_alternative(user_query):
@@ -191,8 +203,7 @@ def extract_keyword_only(user_query):
         Nếu không chắc, trả về từ chính trong câu.
         Từ khóa:
         """
-        response = model.generate_content(prompt)  # Giả sử model đã được khởi tạo
-        extracted_keyword = response.text.strip()
+        extracted_keyword = _generate_content(prompt).strip()
         extracted_keyword = re.sub(
             r"[^\w\sàáảãạâầấẩẫậăằắẳẵặèéẻẽẹêềếểễệđìíỉĩịòóỏõọôồốổỗộơờớởỡợùúủũụưừứửữựỳýỷỹỵ]",
             "",

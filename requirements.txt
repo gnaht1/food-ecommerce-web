@@ -33,7 +33,7 @@ whitenoise
 requests               # for external API calls
 
 # AI/Chatbot dependencies
-google-generativeai    # for Gemini AI integration
+google-genai           # for Gemini AI integration
 fuzzywuzzy             # for fuzzy string matching
 python-Levenshtein     # optional but improves fuzzywuzzy performance
 pandas                 # for data processing
