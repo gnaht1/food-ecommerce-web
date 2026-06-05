@@ -212,6 +212,9 @@
             }
         });
         
+        let sessionId = localStorage.getItem('chatbot_session_id') || 'user_' + Date.now();
+        localStorage.setItem('chatbot_session_id', sessionId);
+
         function addMessage(message, sender) {
             const messageDiv = document.createElement('div');
             messageDiv.classList.add('chat-message', sender);
@@ -268,7 +271,10 @@
                         'Content-Type': 'application/json',
                         'X-CSRFToken': getCookie('csrftoken')
                     },
-                    body: JSON.stringify({ message: messageText })
+                    body: JSON.stringify({ 
+                        message: messageText,
+                        session_id: sessionId
+                    })
                 });
                 
                 removeTypingIndicator();
@@ -280,6 +286,10 @@
                 }
                 
                 const data = await response.json();
+                if (data.session_id) {
+                    sessionId = data.session_id;
+                    localStorage.setItem('chatbot_session_id', sessionId);
+                }
                 addMessage(data.reply, 'bot');
                 
             } catch (error) {

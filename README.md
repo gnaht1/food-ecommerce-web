@@ -14,7 +14,7 @@
   - [2.5. Deployment](#25-deployment)
   - [2.6. Build Vendor Dashboard](#26-build-vendor-dashboard)
   - [2.7. Integrate Payment](#27-integrate-payment)
-  - [2.8. AI Chatbot Integration](#28-ai-chatbot-integration)
+  - [2.8. RAG Chatbot Integration](#28-rag-chatbot-integration)
   - [2.9. Deploy to VPS (Gunicorn + Nginx)](#29-deploy-to-vps-gunicorn--nginx)
 - [4. Testing Guide](#4-testing-guide)
   - [4.1. Payment Testing](#41-payment-testing)
@@ -28,7 +28,7 @@
 # 1. Context
 Context:
 * Developed a full-stack e-commerce website designed for users new to cooking, providing an integrated platform to not only purchase groceries but also receive suggestions for recipes and the necessary ingredients for each dish.  
-* Unlike standard e-commerce websites, this platform integrates an **AI-powered chatbot** to assist beginners in cooking. The chatbot suggests recipes and required ingredients for each dish, and users can quickly add all items to the shopping cart for easier purchasing.  
+* Unlike standard e-commerce websites, this platform integrates a **RAG-based AI cooking chatbot** to assist beginners in cooking. The chatbot retrieves recipe knowledge from a local dataset, matches ingredients with available store products, and lets users quickly add matched ingredients to the shopping cart.
 
 ---
 
@@ -64,6 +64,13 @@ At the beginning of the project, I defined the scope, user stories, and target f
 ## 2.2. Setup Project
 
 The Django framework was configured with PostgreSQL as the database, virtual environments for dependency isolation, and version control using Git. Environment variables were set up to securely manage secrets and configuration values.
+
+For the RAG chatbot, the project also requires:
+
+* `data/recipes.csv` as the local recipe knowledge base.
+* `scikit-learn` for TF-IDF retrieval and cosine similarity.
+* `fuzzywuzzy` and `python-Levenshtein` for fallback ingredient/product matching.
+* `GOOGLE_API_KEY` when Gemini response generation is enabled. If the key is unavailable, the chatbot still returns a deterministic answer from retrieved local data.
 
 ## 2.3. Create Model Classes
 
@@ -122,20 +129,32 @@ A dedicated vendor dashboard was developed, enabling vendors to:
 
 Stripe was integrated as the payment gateway. Users can securely pay for their orders using test cards, and the system listens to webhooks for order confirmation and stock deduction.
 
-## 2.8. AI Chatbot Integration
-* Integrated **Gemini API chatbot**.  
-* Supports natural language prompts:  
-  * Example: `"I want to eat Sandwich"` → chatbot suggests recipe & ingredients.  
-  * `"Another dish"` → chatbot provides alternative recipes.  
-  * `"ok"` → chatbot automatically adds suggested ingredients to the cart.  
+## 2.8. RAG Chatbot Integration
+The chatbot was upgraded from a direct Gemini prompt flow to a local **Retrieval-Augmented Generation (RAG)** pipeline.
+
+Main behavior:
+
+* Retrieves recipe candidates from `data/recipes.csv` using TF-IDF vector search.
+* Retrieves matching products from active, published, in-stock database products.
+* Normalizes natural language food requests in English and Vietnamese, e.g. `"I want to eat sandwich"` or `"tôi muốn ăn phở bò"`.
+* Uses Gemini to generate a Vietnamese answer grounded only in retrieved recipe and product context.
+* Falls back to a deterministic local response when Gemini or the API key is unavailable.
+* Supports `"Another dish"` / `"món khác"` by excluding recipes already suggested in the current chat session.
+* Stores matched product IDs in the session so typing `"ok"` adds available ingredients to the shopping cart.
+
+Example flow:
+
+* `"I want to eat Sandwich"` → retrieves a matching recipe, ingredients, instructions, and store products.
+* `"Another dish"` → retrieves a different relevant recipe.
+* `"ok"` → adds matched products to the cart and reports any missing ingredients.
 
 <p align="center">
   <img src="./media/chatbot1.png" alt="chabot1"/> <br>
-  <b>Figure 5:</b> Recommand food ingredients and its recipe. <br>
+  <b>Figure 5:</b> Recommend food ingredients and recipe instructions. <br>
 </p>
 <p align="center">
   <img src="./media/chatbot2.png" alt="chabot2"/> <br>
-  <b>Figure 6:</b> Automatically adds suggested ingredients to the cart <br>
+  <b>Figure 6:</b> Automatically add matched store products to the cart. <br>
 </p>
 
 ## 2.9. Deploy to VPS (Gunicorn + Nginx)
@@ -162,10 +181,15 @@ For production, the system was deployed on an Ubuntu VPS:
   * **Name**: Any name  
 
 ## 4.2. Chatbot Testing
-* Open the chatbot and enter a prompt, e.g., `"I want to eat Sandwich"`.  
-* Verify the chatbot suggests the correct recipe.  
-* Enter `"Another dish"` to get alternative suggestions.  
-* Type `"ok"` to quickly add ingredients to the cart.  
+Before testing, make sure `data/recipes.csv` exists and the database has published, active, in-stock products.
+
+* Open `/chatbot/` or the chatbot widget.
+* Enter a prompt, e.g., `"I want to eat Sandwich"` or `"tôi muốn ăn phở bò"`.
+* Verify the chatbot returns a recipe title, ingredients, instructions, and matched products from the store.
+* Enter `"Another dish"` or `"món khác"` to verify the next suggestion is different from the previous one.
+* Type `"ok"` to add matched products to the cart.
+* If an ingredient has no matching product, verify the chatbot reports it instead of adding an incorrect item.
+* Temporarily remove or unset `GOOGLE_API_KEY` to confirm the deterministic RAG fallback still returns a recipe answer.
 
 ---
 
@@ -179,13 +203,15 @@ For production, the system was deployed on an Ubuntu VPS:
 * **Bootstrap + Custom CSS/SCSS**: Traditional frontend stack for responsive design and customized UI.
 * **PostgreSQL**: Database for product, user, and order management.  
 * **Stripe API**: Payment integration.  
-* **Gemini API**: Chatbot AI integration.  
+* **Gemini API**: Grounded response generation for the RAG chatbot.
+* **scikit-learn**: TF-IDF vector retrieval over local recipes and products.
+* **fuzzywuzzy + python-Levenshtein**: Ingredient and product fallback matching.
 * **Gunicorn + Nginx**: Production deployment on Ubuntu VPS.  
 
 ## Skills Gained
 * Built a full-featured Django e-commerce system using **Python** as the foundation.
 
-* Hands-on integration with  **AI chatbot** for recipe & ingredient suggestions.
+* Hands-on integration with a **RAG chatbot** for recipe retrieval, ingredient matching, and cart automation.
 
 * Strengthened skills in **Python** programming, including ORM queries, API consumption, and backend logic.
 

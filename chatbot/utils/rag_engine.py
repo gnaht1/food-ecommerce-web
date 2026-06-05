@@ -1,0 +1,413 @@
+import ast
+import csv
+import os
+import re
+import unicodedata
+from dataclasses import dataclass
+from functools import lru_cache
+
+from django.conf import settings
+from fuzzywuzzy import process
+
+from core.models import Product
+
+try:
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.metrics.pairwise import cosine_similarity
+except ImportError:  # pragma: no cover - handled at runtime for misconfigured envs.
+    TfidfVectorizer = None
+    cosine_similarity = None
+
+
+RECIPE_TOP_K = 5
+PRODUCT_TOP_K = 10
+MIN_RECIPE_SCORE = 0.08
+MIN_PRODUCT_SCORE = 0.05
+MIN_FUZZY_SCORE = 60
+
+VIETNAMESE_WORD_CHARS = (
+    "a-zA-Z0-9_"
+    "àáảãạâầấẩẫậăằắẳẵặ"
+    "èéẻẽẹêềếểễệ"
+    "đ"
+    "ìíỉĩị"
+    "òóỏõọôồốổỗộơờớởỡợ"
+    "ùúủũụưừứửữự"
+    "ỳýỷỹỵ"
+)
+
+FOOD_QUERY_PREFIX_PATTERNS = [
+    re.compile(
+        r"^(?:tao|tôi|toi|mình|minh|em|anh|chị|chi|tớ|to|bạn|ban|mk|m)?\s*"
+        r"(?:đang\s+|dang\s+)?(?:muốn|muon|thèm|them|cần|can|định|dinh)\s+"
+        r"(?:ăn|an|nấu|nau|làm|lam|mua|order|đặt|dat)\s+"
+        r"(?:món\s+|mon\s+)?(?P<query>.+)$",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^(?:tao|tôi|toi|mình|minh|em|anh|chị|chi|tớ|to|bạn|ban|mk|m)?\s*"
+        r"(?:muốn|muon|thèm|them)\s+"
+        r"(?:món\s+|mon\s+)?(?P<query>.+)$",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^(?:cho|gợi ý|goi y|suggest|recommend)\s+"
+        r"(?:tôi|toi|mình|minh|em|anh|chị|chi|tao|tớ|to|m)?\s*"
+        r"(?:một\s+|mot\s+|vài\s+|vai\s+)?(?:món\s+|mon\s+)?"
+        r"(?P<query>.+)$",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"^(?:cách|cach|công thức|cong thuc)\s+"
+        r"(?:làm|lam|nấu|nau)\s+(?:món\s+|mon\s+)?(?P<query>.+)$",
+        re.IGNORECASE,
+    ),
+]
+
+FOOD_QUERY_TRAILING_PATTERN = re.compile(
+    r"(?:(?:\s+(?:đi|di|nhé|nhe|nha|với|voi|ạ|a|please|pls))+|[.!?。]+)$",
+    re.IGNORECASE,
+)
+
+VIETNAMESE_FOOD_PHRASES = {
+    "banh mi": "sandwich",
+    "banh xeo": "vietnamese crepe",
+    "banh cuon": "steamed rice rolls",
+    "banh canh": "tapioca noodle soup",
+    "bun bo hue": "spicy beef noodle soup",
+    "bun bo": "beef noodle soup",
+    "bun cha": "grilled pork noodles",
+    "bun thit nuong": "grilled pork noodles",
+    "bun rieu": "crab noodle soup",
+    "bo kho": "beef stew",
+    "bo luc lac": "shaking beef",
+    "ca hoi": "salmon",
+    "ca kho": "braised fish",
+    "canh chua": "sour soup",
+    "cha gio": "egg rolls",
+    "chao ga": "chicken porridge",
+    "com chien": "fried rice",
+    "com ga": "chicken rice",
+    "com suon": "pork chop rice",
+    "com tam": "broken rice pork",
+    "ga chien": "fried chicken",
+    "ga kho": "braised chicken",
+    "ga luoc": "boiled chicken",
+    "ga nuong": "grilled chicken",
+    "ga ran": "fried chicken",
+    "goi cuon": "spring rolls",
+    "hai san": "seafood",
+    "lau hai san": "seafood hot pot",
+    "mi quang": "turmeric noodle soup",
+    "mi xao": "fried noodles",
+    "pho bo": "beef noodle soup",
+    "pho ga": "chicken noodle soup",
+    "suon nuong": "grilled pork chop",
+    "thit bo": "beef",
+    "thit ga": "chicken",
+    "thit heo": "pork",
+    "thit heo kho": "braised pork",
+    "thit kho": "braised pork",
+    "thit nuong": "grilled pork",
+}
+
+VIETNAMESE_FOOD_WORDS = {
+    "bo": "beef",
+    "bun": "noodles",
+    "ca": "fish",
+    "cai": "cabbage",
+    "cay": "spicy",
+    "chien": "fried",
+    "chua": "sour",
+    "com": "rice",
+    "cua": "crab",
+    "ga": "chicken",
+    "goi": "salad",
+    "hai san": "seafood",
+    "heo": "pork",
+    "kho": "braised",
+    "lau": "hot pot",
+    "lon": "pork",
+    "luoc": "boiled",
+    "mi": "noodles",
+    "muc": "squid",
+    "nam": "mushroom",
+    "ngheu": "clam",
+    "nuong": "grilled",
+    "pho": "noodle soup",
+    "rau": "vegetable",
+    "salad": "salad",
+    "sup": "soup",
+    "suon": "pork chop",
+    "thit": "meat",
+    "tom": "shrimp",
+    "trung": "egg",
+    "vit": "duck",
+    "xao": "stir fried",
+}
+
+
+@dataclass
+class SearchResult:
+    item: dict
+    score: float
+
+
+def _clean_text(value):
+    if value is None:
+        return ""
+    return re.sub(r"\s+", " ", str(value)).strip()
+
+
+def _strip_accents(value):
+    normalized = unicodedata.normalize("NFD", value)
+    stripped = "".join(char for char in normalized if unicodedata.category(char) != "Mn")
+    return stripped.replace("đ", "d").replace("Đ", "D")
+
+
+def _clean_extracted_query(value):
+    text = _clean_text(value)
+    text = re.sub(rf"^[^\w{VIETNAMESE_WORD_CHARS}]+", "", text, flags=re.IGNORECASE)
+    text = FOOD_QUERY_TRAILING_PATTERN.sub("", text).strip()
+    text = re.sub(r"^(?:món|mon)\s+", "", text, flags=re.IGNORECASE).strip()
+    return text or _clean_text(value)
+
+
+def translate_vietnamese_food_query(query):
+    text = _clean_text(query)
+    if not text:
+        return text
+
+    normalized = _strip_accents(text).lower()
+    normalized = re.sub(r"[^a-z0-9\s]", " ", normalized)
+    normalized = re.sub(r"\s+", " ", normalized).strip()
+
+    translated = normalized
+    for phrase, english in sorted(VIETNAMESE_FOOD_PHRASES.items(), key=lambda item: len(item[0]), reverse=True):
+        translated = re.sub(rf"\b{re.escape(phrase)}\b", english, translated)
+
+    words = []
+    for word in translated.split():
+        words.extend(VIETNAMESE_FOOD_WORDS.get(word, word).split())
+
+    return " ".join(words).strip() or text
+
+
+def normalize_food_query(message):
+    """
+    Convert conversational food intents into the actual recipe/product query.
+
+    Examples:
+    - "tao muốn ăn sandwich" -> "sandwich"
+    - "tôi thèm ăn món gà" -> "chicken"
+    - "tôi muốn ăn phở bò" -> "beef noodle soup"
+    - "cách làm pasta" -> "pasta"
+    """
+    text = _clean_text(message)
+    if not text or is_alternative_request(text):
+        return text
+
+    for pattern in FOOD_QUERY_PREFIX_PATTERNS:
+        match = pattern.match(text)
+        if match:
+            return translate_vietnamese_food_query(_clean_extracted_query(match.group("query")))
+
+    return translate_vietnamese_food_query(text)
+
+
+def _parse_ingredients(value):
+    text = _clean_text(value)
+    if not text:
+        return []
+    try:
+        parsed = ast.literal_eval(text)
+        if isinstance(parsed, (list, tuple)):
+            return [_clean_text(item) for item in parsed if _clean_text(item)]
+    except (ValueError, SyntaxError):
+        pass
+    return [item.strip(" -•") for item in re.split(r";|,\s+(?=[A-Za-z0-9¼½¾⅓⅔])", text) if item.strip()]
+
+
+def _recipe_document(recipe):
+    return " ".join(
+        [
+            recipe.get("title", ""),
+            " ".join(recipe.get("ingredients_list", [])),
+            recipe.get("ingredients", ""),
+            recipe.get("instructions", ""),
+        ]
+    )
+
+
+def _product_document(product):
+    return " ".join(
+        [
+            product.get("title", ""),
+            product.get("description", ""),
+            product.get("category", ""),
+            product.get("vendor", ""),
+            product.get("type", ""),
+        ]
+    )
+
+
+class TfidfIndex:
+    def __init__(self, items, document_builder):
+        self.items = items
+        self.ready = bool(items) and TfidfVectorizer is not None and cosine_similarity is not None
+        self.vectorizer = None
+        self.matrix = None
+        if self.ready:
+            self.vectorizer = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=1)
+            self.matrix = self.vectorizer.fit_transform([document_builder(item) for item in items])
+
+    def search(self, query, limit, exclude_titles=None):
+        if not self.ready or not query:
+            return []
+        excluded = {title.lower() for title in (exclude_titles or [])}
+        query_vector = self.vectorizer.transform([query])
+        scores = cosine_similarity(query_vector, self.matrix).flatten()
+        ranked_indexes = scores.argsort()[::-1]
+        results = []
+        for idx in ranked_indexes:
+            item = self.items[idx]
+            if item.get("title", "").lower() in excluded:
+                continue
+            score = float(scores[idx])
+            if score <= 0:
+                break
+            results.append(SearchResult(item=item, score=score))
+            if len(results) >= limit:
+                break
+        return results
+
+
+@lru_cache(maxsize=1)
+def get_recipe_index():
+    path = os.path.join(settings.BASE_DIR, "data", "recipes.csv")
+    recipes = []
+    with open(path, newline="", encoding="utf-8") as csv_file:
+        reader = csv.DictReader(csv_file)
+        for row in reader:
+            title = _clean_text(row.get("Title") or row.get("title"))
+            if not title:
+                continue
+            ingredients = _clean_text(row.get("Cleaned_Ingredients") or row.get("Ingredients"))
+            recipes.append(
+                {
+                    "title": title,
+                    "ingredients": ingredients,
+                    "ingredients_list": _parse_ingredients(ingredients),
+                    "instructions": _clean_text(row.get("Instructions")),
+                }
+            )
+    return TfidfIndex(recipes, _recipe_document)
+
+
+@lru_cache(maxsize=1)
+def get_product_index():
+    products = []
+    queryset = (
+        Product.objects.filter(product_status="published", status=True, in_stock=True)
+        .select_related("category", "vendor")
+        .only("id", "pid", "title", "description", "price", "image", "category__title", "vendor__title", "type")
+    )
+    for product in queryset:
+        products.append(
+            {
+                "id": product.id,
+                "pid": str(product.pid),
+                "title": product.title,
+                "description": _clean_text(product.description),
+                "category": product.category.title if product.category else "",
+                "vendor": product.vendor.title if product.vendor else "",
+                "type": product.type or "",
+                "price": str(product.price),
+                "image": product.image.url if product.image else "",
+            }
+        )
+    return TfidfIndex(products, _product_document)
+
+
+def is_alternative_request(message):
+    text = message.lower()
+    phrases = [
+        "another dish",
+        "different dish",
+        "something else",
+        "other recipe",
+        "món khác",
+        "món tương tự",
+        "món thay thế",
+        "gợi ý khác",
+        "đổi món",
+        "món nào khác",
+    ]
+    return any(phrase in text for phrase in phrases)
+
+
+def retrieve_recipes(query, excluded_titles=None, limit=RECIPE_TOP_K):
+    return get_recipe_index().search(query, limit=limit, exclude_titles=excluded_titles)
+
+
+def retrieve_products(query, limit=PRODUCT_TOP_K):
+    return get_product_index().search(query, limit=limit)
+
+
+def match_products_for_ingredients(ingredients):
+    product_index = get_product_index()
+    all_titles = [item["title"] for item in product_index.items]
+    matches = []
+    missing = []
+    for ingredient in ingredients:
+        result = product_index.search(ingredient, limit=1)
+        if result and result[0].score >= MIN_PRODUCT_SCORE:
+            matches.append({"ingredient": ingredient, "product": result[0].item, "score": result[0].score})
+            continue
+        fuzzy_match = process.extractOne(ingredient, all_titles) if all_titles else None
+        if fuzzy_match and fuzzy_match[1] >= MIN_FUZZY_SCORE:
+            product = product_index.items[all_titles.index(fuzzy_match[0])]
+            matches.append({"ingredient": ingredient, "product": product, "score": fuzzy_match[1] / 100})
+        else:
+            missing.append(ingredient)
+    return matches, missing
+
+
+def build_context(recipe_results, product_results):
+    recipe_lines = []
+    for index, result in enumerate(recipe_results, start=1):
+        recipe = result.item
+        recipe_lines.append(
+            "\n".join(
+                [
+                    f"Recipe {index}: {recipe['title']}",
+                    f"Score: {result.score:.3f}",
+                    f"Ingredients: {recipe['ingredients']}",
+                    f"Instructions: {recipe['instructions']}",
+                ]
+            )
+        )
+    product_lines = [
+        f"- {result.item['title']} (id={result.item['id']}, category={result.item.get('category', '')}, score={result.score:.3f})"
+        for result in product_results
+    ]
+    return "\n\n".join(recipe_lines), "\n".join(product_lines)
+
+
+def deterministic_recipe_reply(recipe, product_matches=None, missing=None, prefix="OK bạn!"):
+    ingredients = recipe.get("ingredients_list") or _parse_ingredients(recipe.get("ingredients"))
+    ingredients_text = "\n".join(f"• {ingredient}" for ingredient in ingredients) or recipe.get("ingredients", "")
+    instructions = recipe.get("instructions", "")
+    reply = (
+        f"{prefix} Để nấu món **{recipe['title']}**, bạn cần:\n\n"
+        f"**Nguyên liệu:**\n{ingredients_text}\n\n"
+        f"**Hướng dẫn thực hiện:**\n{instructions}"
+    )
+    if product_matches:
+        names = ", ".join(match["product"]["title"] for match in product_matches[:10])
+        reply += f"\n\nTôi tìm thấy sản phẩm phù hợp trong cửa hàng: {names}."
+    if missing:
+        reply += f"\nMột số nguyên liệu chưa có sản phẩm phù hợp: {', '.join(missing[:10])}."
+    if product_matches:
+        reply += "\n\nBạn có muốn thêm các sản phẩm phù hợp vào giỏ hàng không? (gõ 'ok' để thêm)"
+    return reply
